@@ -1,12 +1,12 @@
 <?php
 
-namespace Laravel\Fortify\Http\Controllers;
+namespace Qruto\Cave\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Laravel\Fortify\Contracts\EmailVerificationNotificationSentResponse;
-use Laravel\Fortify\Fortify;
+use Qruto\Cave\Contracts\EmailVerificationNotificationSentResponse;
+use Qruto\Cave\Fortify;
 
 class EmailVerificationNotificationController extends Controller
 {

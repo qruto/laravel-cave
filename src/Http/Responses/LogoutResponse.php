@@ -1,10 +1,10 @@
 <?php
 
-namespace Laravel\Fortify\Http\Responses;
+namespace Qruto\Cave\Http\Responses;
 
 use Illuminate\Http\JsonResponse;
-use Laravel\Fortify\Contracts\LogoutResponse as LogoutResponseContract;
-use Laravel\Fortify\Fortify;
+use Qruto\Cave\Contracts\LogoutResponse as LogoutResponseContract;
+use Qruto\Cave\Fortify;
 
 class LogoutResponse implements LogoutResponseContract
 {

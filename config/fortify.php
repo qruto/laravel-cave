@@ -1,6 +1,6 @@
 <?php
 
-use Laravel\Fortify\Features;
+use Qruto\Cave\Features;
 
 return [
     'guard' => 'web',

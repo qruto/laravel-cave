@@ -1,11 +1,11 @@
 <?php
 
-namespace Laravel\Fortify\Tests;
+namespace Qruto\Cave\Tests;
 
 use Illuminate\Contracts\Auth\PasswordBroker;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Password;
-use Laravel\Fortify\Contracts\RequestPasswordResetLinkViewResponse;
+use Qruto\Cave\Contracts\RequestPasswordResetLinkViewResponse;
 use Mockery;
 
 class PasswordResetLinkRequestControllerTest extends OrchestraTestCase

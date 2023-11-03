@@ -1,6 +1,6 @@
 <?php
 
-namespace Laravel\Fortify\Tests;
+namespace Qruto\Cave\Tests;
 
 use Illuminate\Cache\RateLimiter;
 use Illuminate\Contracts\Auth\Authenticatable;
@@ -10,11 +10,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Schema;
-use Laravel\Fortify\Contracts\LoginViewResponse;
-use Laravel\Fortify\Events\TwoFactorAuthenticationChallenged;
-use Laravel\Fortify\Features;
-use Laravel\Fortify\LoginRateLimiter;
-use Laravel\Fortify\TwoFactorAuthenticatable;
+use Qruto\Cave\Contracts\LoginViewResponse;
+use Qruto\Cave\Events\TwoFactorAuthenticationChallenged;
+use Qruto\Cave\Features;
+use Qruto\Cave\LoginRateLimiter;
+use Qruto\Cave\TwoFactorAuthenticatable;
 use Mockery;
 use PragmaRX\Google2FA\Google2FA;
 

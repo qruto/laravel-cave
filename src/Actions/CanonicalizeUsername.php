@@ -1,9 +1,9 @@
 <?php
 
-namespace Laravel\Fortify\Actions;
+namespace Qruto\Cave\Actions;
 
 use Illuminate\Support\Str;
-use Laravel\Fortify\Fortify;
+use Qruto\Cave\Fortify;
 
 class CanonicalizeUsername
 {

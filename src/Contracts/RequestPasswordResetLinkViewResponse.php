@@ -1,6 +1,6 @@
 <?php
 
-namespace Laravel\Fortify\Contracts;
+namespace Qruto\Cave\Contracts;
 
 use Illuminate\Contracts\Support\Responsable;
 

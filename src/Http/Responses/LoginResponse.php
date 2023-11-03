@@ -1,9 +1,9 @@
 <?php
 
-namespace Laravel\Fortify\Http\Responses;
+namespace Qruto\Cave\Http\Responses;
 
-use Laravel\Fortify\Contracts\LoginResponse as LoginResponseContract;
-use Laravel\Fortify\Fortify;
+use Qruto\Cave\Contracts\LoginResponse as LoginResponseContract;
+use Qruto\Cave\Fortify;
 
 class LoginResponse implements LoginResponseContract
 {

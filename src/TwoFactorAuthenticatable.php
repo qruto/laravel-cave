@@ -1,6 +1,6 @@
 <?php
 
-namespace Laravel\Fortify;
+namespace Qruto\Cave;
 
 use BaconQrCode\Renderer\Color\Rgb;
 use BaconQrCode\Renderer\Image\SvgImageBackEnd;
@@ -8,7 +8,7 @@ use BaconQrCode\Renderer\ImageRenderer;
 use BaconQrCode\Renderer\RendererStyle\Fill;
 use BaconQrCode\Renderer\RendererStyle\RendererStyle;
 use BaconQrCode\Writer;
-use Laravel\Fortify\Contracts\TwoFactorAuthenticationProvider;
+use Qruto\Cave\Contracts\TwoFactorAuthenticationProvider;
 
 trait TwoFactorAuthenticatable
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Laravel\Fortify\Contracts;
+namespace Qruto\Cave\Contracts;
 
 /**
  * @method void reset(\Illuminate\Foundation\Auth\User $user, array $input)

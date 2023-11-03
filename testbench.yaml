@@ -1,5 +1,5 @@
 providers:
-  - Laravel\Fortify\FortifyServiceProvider
+  - Qruto\Cave\CaveServiceProvider
 
 migrations:
   - database/migrations

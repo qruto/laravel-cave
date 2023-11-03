@@ -1,22 +1,22 @@
 <?php
 
-namespace Laravel\Fortify\Actions;
+namespace Qruto\Cave\Actions;
 
-use Laravel\Fortify\LoginRateLimiter;
+use Qruto\Cave\LoginRateLimiter;
 
 class PrepareAuthenticatedSession
 {
     /**
      * The login rate limiter instance.
      *
-     * @var \Laravel\Fortify\LoginRateLimiter
+     * @var \Qruto\Cave\LoginRateLimiter
      */
     protected $limiter;
 
     /**
      * Create a new class instance.
      *
-     * @param  \Laravel\Fortify\LoginRateLimiter  $limiter
+     * @param  \Qruto\Cave\LoginRateLimiter  $limiter
      * @return void
      */
     public function __construct(LoginRateLimiter $limiter)

@@ -1,56 +1,56 @@
 <?php
 
-namespace Laravel\Fortify;
+namespace Qruto\Cave;
 
 use Illuminate\Contracts\Auth\StatefulGuard;
 use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
-use Laravel\Fortify\Contracts\EmailVerificationNotificationSentResponse as EmailVerificationNotificationSentResponseContract;
-use Laravel\Fortify\Contracts\FailedPasswordConfirmationResponse as FailedPasswordConfirmationResponseContract;
-use Laravel\Fortify\Contracts\FailedPasswordResetLinkRequestResponse as FailedPasswordResetLinkRequestResponseContract;
-use Laravel\Fortify\Contracts\FailedPasswordResetResponse as FailedPasswordResetResponseContract;
-use Laravel\Fortify\Contracts\FailedTwoFactorLoginResponse as FailedTwoFactorLoginResponseContract;
-use Laravel\Fortify\Contracts\LockoutResponse as LockoutResponseContract;
-use Laravel\Fortify\Contracts\LoginResponse as LoginResponseContract;
-use Laravel\Fortify\Contracts\LogoutResponse as LogoutResponseContract;
-use Laravel\Fortify\Contracts\PasswordConfirmedResponse as PasswordConfirmedResponseContract;
-use Laravel\Fortify\Contracts\PasswordResetResponse as PasswordResetResponseContract;
-use Laravel\Fortify\Contracts\PasswordUpdateResponse as PasswordUpdateResponseContract;
-use Laravel\Fortify\Contracts\ProfileInformationUpdatedResponse as ProfileInformationUpdatedResponseContract;
-use Laravel\Fortify\Contracts\RecoveryCodesGeneratedResponse as RecoveryCodesGeneratedResponseContract;
-use Laravel\Fortify\Contracts\RegisterResponse as RegisterResponseContract;
-use Laravel\Fortify\Contracts\SuccessfulPasswordResetLinkRequestResponse as SuccessfulPasswordResetLinkRequestResponseContract;
-use Laravel\Fortify\Contracts\TwoFactorAuthenticationProvider as TwoFactorAuthenticationProviderContract;
-use Laravel\Fortify\Contracts\TwoFactorConfirmedResponse as TwoFactorConfirmedResponseContract;
-use Laravel\Fortify\Contracts\TwoFactorDisabledResponse as TwoFactorDisabledResponseContract;
-use Laravel\Fortify\Contracts\TwoFactorEnabledResponse as TwoFactorEnabledResponseContract;
-use Laravel\Fortify\Contracts\TwoFactorLoginResponse as TwoFactorLoginResponseContract;
-use Laravel\Fortify\Contracts\VerifyEmailResponse as VerifyEmailResponseContract;
-use Laravel\Fortify\Http\Responses\EmailVerificationNotificationSentResponse;
-use Laravel\Fortify\Http\Responses\FailedPasswordConfirmationResponse;
-use Laravel\Fortify\Http\Responses\FailedPasswordResetLinkRequestResponse;
-use Laravel\Fortify\Http\Responses\FailedPasswordResetResponse;
-use Laravel\Fortify\Http\Responses\FailedTwoFactorLoginResponse;
-use Laravel\Fortify\Http\Responses\LockoutResponse;
-use Laravel\Fortify\Http\Responses\LoginResponse;
-use Laravel\Fortify\Http\Responses\LogoutResponse;
-use Laravel\Fortify\Http\Responses\PasswordConfirmedResponse;
-use Laravel\Fortify\Http\Responses\PasswordResetResponse;
-use Laravel\Fortify\Http\Responses\PasswordUpdateResponse;
-use Laravel\Fortify\Http\Responses\ProfileInformationUpdatedResponse;
-use Laravel\Fortify\Http\Responses\RecoveryCodesGeneratedResponse;
-use Laravel\Fortify\Http\Responses\RegisterResponse;
-use Laravel\Fortify\Http\Responses\SuccessfulPasswordResetLinkRequestResponse;
-use Laravel\Fortify\Http\Responses\TwoFactorConfirmedResponse;
-use Laravel\Fortify\Http\Responses\TwoFactorDisabledResponse;
-use Laravel\Fortify\Http\Responses\TwoFactorEnabledResponse;
-use Laravel\Fortify\Http\Responses\TwoFactorLoginResponse;
-use Laravel\Fortify\Http\Responses\VerifyEmailResponse;
+use Qruto\Cave\Contracts\EmailVerificationNotificationSentResponse as EmailVerificationNotificationSentResponseContract;
+use Qruto\Cave\Contracts\FailedPasswordConfirmationResponse as FailedPasswordConfirmationResponseContract;
+use Qruto\Cave\Contracts\FailedPasswordResetLinkRequestResponse as FailedPasswordResetLinkRequestResponseContract;
+use Qruto\Cave\Contracts\FailedPasswordResetResponse as FailedPasswordResetResponseContract;
+use Qruto\Cave\Contracts\FailedTwoFactorLoginResponse as FailedTwoFactorLoginResponseContract;
+use Qruto\Cave\Contracts\LockoutResponse as LockoutResponseContract;
+use Qruto\Cave\Contracts\LoginResponse as LoginResponseContract;
+use Qruto\Cave\Contracts\LogoutResponse as LogoutResponseContract;
+use Qruto\Cave\Contracts\PasswordConfirmedResponse as PasswordConfirmedResponseContract;
+use Qruto\Cave\Contracts\PasswordResetResponse as PasswordResetResponseContract;
+use Qruto\Cave\Contracts\PasswordUpdateResponse as PasswordUpdateResponseContract;
+use Qruto\Cave\Contracts\ProfileInformationUpdatedResponse as ProfileInformationUpdatedResponseContract;
+use Qruto\Cave\Contracts\RecoveryCodesGeneratedResponse as RecoveryCodesGeneratedResponseContract;
+use Qruto\Cave\Contracts\RegisterResponse as RegisterResponseContract;
+use Qruto\Cave\Contracts\SuccessfulPasswordResetLinkRequestResponse as SuccessfulPasswordResetLinkRequestResponseContract;
+use Qruto\Cave\Contracts\TwoFactorAuthenticationProvider as TwoFactorAuthenticationProviderContract;
+use Qruto\Cave\Contracts\TwoFactorConfirmedResponse as TwoFactorConfirmedResponseContract;
+use Qruto\Cave\Contracts\TwoFactorDisabledResponse as TwoFactorDisabledResponseContract;
+use Qruto\Cave\Contracts\TwoFactorEnabledResponse as TwoFactorEnabledResponseContract;
+use Qruto\Cave\Contracts\TwoFactorLoginResponse as TwoFactorLoginResponseContract;
+use Qruto\Cave\Contracts\VerifyEmailResponse as VerifyEmailResponseContract;
+use Qruto\Cave\Http\Responses\EmailVerificationNotificationSentResponse;
+use Qruto\Cave\Http\Responses\FailedPasswordConfirmationResponse;
+use Qruto\Cave\Http\Responses\FailedPasswordResetLinkRequestResponse;
+use Qruto\Cave\Http\Responses\FailedPasswordResetResponse;
+use Qruto\Cave\Http\Responses\FailedTwoFactorLoginResponse;
+use Qruto\Cave\Http\Responses\LockoutResponse;
+use Qruto\Cave\Http\Responses\LoginResponse;
+use Qruto\Cave\Http\Responses\LogoutResponse;
+use Qruto\Cave\Http\Responses\PasswordConfirmedResponse;
+use Qruto\Cave\Http\Responses\PasswordResetResponse;
+use Qruto\Cave\Http\Responses\PasswordUpdateResponse;
+use Qruto\Cave\Http\Responses\ProfileInformationUpdatedResponse;
+use Qruto\Cave\Http\Responses\RecoveryCodesGeneratedResponse;
+use Qruto\Cave\Http\Responses\RegisterResponse;
+use Qruto\Cave\Http\Responses\SuccessfulPasswordResetLinkRequestResponse;
+use Qruto\Cave\Http\Responses\TwoFactorConfirmedResponse;
+use Qruto\Cave\Http\Responses\TwoFactorDisabledResponse;
+use Qruto\Cave\Http\Responses\TwoFactorEnabledResponse;
+use Qruto\Cave\Http\Responses\TwoFactorLoginResponse;
+use Qruto\Cave\Http\Responses\VerifyEmailResponse;
 use PragmaRX\Google2FA\Google2FA;
 
-class FortifyServiceProvider extends ServiceProvider
+class CaveServiceProvider extends ServiceProvider
 {
     /**
      * Register any application services.
@@ -151,7 +151,7 @@ class FortifyServiceProvider extends ServiceProvider
     {
         if (Fortify::$registersRoutes) {
             Route::group([
-                'namespace' => 'Laravel\Fortify\Http\Controllers',
+                'namespace' => 'Qruto\Cave\Http\Controllers',
                 'domain' => config('fortify.domain', null),
                 'prefix' => config('fortify.prefix'),
             ], function () {

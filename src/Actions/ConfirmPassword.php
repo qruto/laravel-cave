@@ -1,9 +1,9 @@
 <?php
 
-namespace Laravel\Fortify\Actions;
+namespace Qruto\Cave\Actions;
 
 use Illuminate\Contracts\Auth\StatefulGuard;
-use Laravel\Fortify\Fortify;
+use Qruto\Cave\Fortify;
 
 class ConfirmPassword
 {

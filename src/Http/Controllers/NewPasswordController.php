@@ -1,6 +1,6 @@
 <?php
 
-namespace Laravel\Fortify\Http\Controllers;
+namespace Qruto\Cave\Http\Controllers;
 
 use Illuminate\Contracts\Auth\PasswordBroker;
 use Illuminate\Contracts\Auth\StatefulGuard;
@@ -8,12 +8,12 @@ use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Password;
-use Laravel\Fortify\Actions\CompletePasswordReset;
-use Laravel\Fortify\Contracts\FailedPasswordResetResponse;
-use Laravel\Fortify\Contracts\PasswordResetResponse;
-use Laravel\Fortify\Contracts\ResetPasswordViewResponse;
-use Laravel\Fortify\Contracts\ResetsUserPasswords;
-use Laravel\Fortify\Fortify;
+use Qruto\Cave\Actions\CompletePasswordReset;
+use Qruto\Cave\Contracts\FailedPasswordResetResponse;
+use Qruto\Cave\Contracts\PasswordResetResponse;
+use Qruto\Cave\Contracts\ResetPasswordViewResponse;
+use Qruto\Cave\Contracts\ResetsUserPasswords;
+use Qruto\Cave\Fortify;
 
 class NewPasswordController extends Controller
 {
@@ -39,7 +39,7 @@ class NewPasswordController extends Controller
      * Show the new password view.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Laravel\Fortify\Contracts\ResetPasswordViewResponse
+     * @return \Qruto\Cave\Contracts\ResetPasswordViewResponse
      */
     public function create(Request $request): ResetPasswordViewResponse
     {

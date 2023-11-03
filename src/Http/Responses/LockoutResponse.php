@@ -1,26 +1,26 @@
 <?php
 
-namespace Laravel\Fortify\Http\Responses;
+namespace Qruto\Cave\Http\Responses;
 
 use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
-use Laravel\Fortify\Contracts\LockoutResponse as LockoutResponseContract;
-use Laravel\Fortify\Fortify;
-use Laravel\Fortify\LoginRateLimiter;
+use Qruto\Cave\Contracts\LockoutResponse as LockoutResponseContract;
+use Qruto\Cave\Fortify;
+use Qruto\Cave\LoginRateLimiter;
 
 class LockoutResponse implements LockoutResponseContract
 {
     /**
      * The login rate limiter instance.
      *
-     * @var \Laravel\Fortify\LoginRateLimiter
+     * @var \Qruto\Cave\LoginRateLimiter
      */
     protected $limiter;
 
     /**
      * Create a new response instance.
      *
-     * @param  \Laravel\Fortify\LoginRateLimiter  $limiter
+     * @param  \Qruto\Cave\LoginRateLimiter  $limiter
      * @return void
      */
     public function __construct(LoginRateLimiter $limiter)

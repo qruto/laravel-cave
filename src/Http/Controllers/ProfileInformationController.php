@@ -1,13 +1,13 @@
 <?php
 
-namespace Laravel\Fortify\Http\Controllers;
+namespace Qruto\Cave\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Str;
-use Laravel\Fortify\Contracts\ProfileInformationUpdatedResponse;
-use Laravel\Fortify\Contracts\UpdatesUserProfileInformation;
-use Laravel\Fortify\Fortify;
+use Qruto\Cave\Contracts\ProfileInformationUpdatedResponse;
+use Qruto\Cave\Contracts\UpdatesUserProfileInformation;
+use Qruto\Cave\Fortify;
 
 class ProfileInformationController extends Controller
 {
@@ -15,8 +15,8 @@ class ProfileInformationController extends Controller
      * Update the user's profile information.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \Laravel\Fortify\Contracts\UpdatesUserProfileInformation  $updater
-     * @return \Laravel\Fortify\Contracts\ProfileInformationUpdatedResponse
+     * @param  \Qruto\Cave\Contracts\UpdatesUserProfileInformation  $updater
+     * @return \Qruto\Cave\Contracts\ProfileInformationUpdatedResponse
      */
     public function update(Request $request,
                            UpdatesUserProfileInformation $updater)

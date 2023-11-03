@@ -1,10 +1,10 @@
 <?php
 
-namespace Laravel\Fortify\Http\Responses;
+namespace Qruto\Cave\Http\Responses;
 
 use Illuminate\Http\JsonResponse;
-use Laravel\Fortify\Contracts\TwoFactorLoginResponse as TwoFactorLoginResponseContract;
-use Laravel\Fortify\Fortify;
+use Qruto\Cave\Contracts\TwoFactorLoginResponse as TwoFactorLoginResponseContract;
+use Qruto\Cave\Fortify;
 
 class TwoFactorLoginResponse implements TwoFactorLoginResponseContract
 {

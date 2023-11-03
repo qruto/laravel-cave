@@ -1,25 +1,25 @@
 <?php
 
-namespace Laravel\Fortify\Actions;
+namespace Qruto\Cave\Actions;
 
 use Illuminate\Support\Collection;
-use Laravel\Fortify\Contracts\TwoFactorAuthenticationProvider;
-use Laravel\Fortify\Events\TwoFactorAuthenticationEnabled;
-use Laravel\Fortify\RecoveryCode;
+use Qruto\Cave\Contracts\TwoFactorAuthenticationProvider;
+use Qruto\Cave\Events\TwoFactorAuthenticationEnabled;
+use Qruto\Cave\RecoveryCode;
 
 class EnableTwoFactorAuthentication
 {
     /**
      * The two factor authentication provider.
      *
-     * @var \Laravel\Fortify\Contracts\TwoFactorAuthenticationProvider
+     * @var \Qruto\Cave\Contracts\TwoFactorAuthenticationProvider
      */
     protected $provider;
 
     /**
      * Create a new action instance.
      *
-     * @param  \Laravel\Fortify\Contracts\TwoFactorAuthenticationProvider  $provider
+     * @param  \Qruto\Cave\Contracts\TwoFactorAuthenticationProvider  $provider
      * @return void
      */
     public function __construct(TwoFactorAuthenticationProvider $provider)

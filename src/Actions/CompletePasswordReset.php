@@ -1,6 +1,6 @@
 <?php
 
-namespace Laravel\Fortify\Actions;
+namespace Qruto\Cave\Actions;
 
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Contracts\Auth\StatefulGuard;

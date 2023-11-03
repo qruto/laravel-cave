@@ -1,6 +1,6 @@
 <?php
 
-namespace Laravel\Fortify\Rules;
+namespace Qruto\Cave\Rules;
 
 use Illuminate\Contracts\Validation\Rule;
 use Illuminate\Support\Str;

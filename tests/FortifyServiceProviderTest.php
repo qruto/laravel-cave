@@ -1,10 +1,10 @@
 <?php
 
-namespace Laravel\Fortify\Tests;
+namespace Qruto\Cave\Tests;
 
 use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Http\JsonResponse;
-use Laravel\Fortify\Fortify;
+use Qruto\Cave\Fortify;
 
 class FortifyServiceProviderTest extends OrchestraTestCase
 {

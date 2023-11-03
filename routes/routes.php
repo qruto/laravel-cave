@@ -1,25 +1,25 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Laravel\Fortify\Features;
-use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
-use Laravel\Fortify\Http\Controllers\ConfirmablePasswordController;
-use Laravel\Fortify\Http\Controllers\ConfirmedPasswordStatusController;
-use Laravel\Fortify\Http\Controllers\ConfirmedTwoFactorAuthenticationController;
-use Laravel\Fortify\Http\Controllers\EmailVerificationNotificationController;
-use Laravel\Fortify\Http\Controllers\EmailVerificationPromptController;
-use Laravel\Fortify\Http\Controllers\NewPasswordController;
-use Laravel\Fortify\Http\Controllers\PasswordController;
-use Laravel\Fortify\Http\Controllers\PasswordResetLinkController;
-use Laravel\Fortify\Http\Controllers\ProfileInformationController;
-use Laravel\Fortify\Http\Controllers\RecoveryCodeController;
-use Laravel\Fortify\Http\Controllers\RegisteredUserController;
-use Laravel\Fortify\Http\Controllers\TwoFactorAuthenticatedSessionController;
-use Laravel\Fortify\Http\Controllers\TwoFactorAuthenticationController;
-use Laravel\Fortify\Http\Controllers\TwoFactorQrCodeController;
-use Laravel\Fortify\Http\Controllers\TwoFactorSecretKeyController;
-use Laravel\Fortify\Http\Controllers\VerifyEmailController;
-use Laravel\Fortify\RoutePath;
+use Qruto\Cave\Features;
+use Qruto\Cave\Http\Controllers\AuthenticatedSessionController;
+use Qruto\Cave\Http\Controllers\ConfirmablePasswordController;
+use Qruto\Cave\Http\Controllers\ConfirmedPasswordStatusController;
+use Qruto\Cave\Http\Controllers\ConfirmedTwoFactorAuthenticationController;
+use Qruto\Cave\Http\Controllers\EmailVerificationNotificationController;
+use Qruto\Cave\Http\Controllers\EmailVerificationPromptController;
+use Qruto\Cave\Http\Controllers\NewPasswordController;
+use Qruto\Cave\Http\Controllers\PasswordController;
+use Qruto\Cave\Http\Controllers\PasswordResetLinkController;
+use Qruto\Cave\Http\Controllers\ProfileInformationController;
+use Qruto\Cave\Http\Controllers\RecoveryCodeController;
+use Qruto\Cave\Http\Controllers\RegisteredUserController;
+use Qruto\Cave\Http\Controllers\TwoFactorAuthenticatedSessionController;
+use Qruto\Cave\Http\Controllers\TwoFactorAuthenticationController;
+use Qruto\Cave\Http\Controllers\TwoFactorQrCodeController;
+use Qruto\Cave\Http\Controllers\TwoFactorSecretKeyController;
+use Qruto\Cave\Http\Controllers\VerifyEmailController;
+use Qruto\Cave\RoutePath;
 
 Route::group(['middleware' => config('fortify.middleware', ['web'])], function () {
     $enableViews = config('fortify.views', true);

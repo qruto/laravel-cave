@@ -1,9 +1,9 @@
 <?php
 
-namespace Laravel\Fortify\Actions;
+namespace Qruto\Cave\Actions;
 
-use Laravel\Fortify\Events\TwoFactorAuthenticationDisabled;
-use Laravel\Fortify\Fortify;
+use Qruto\Cave\Events\TwoFactorAuthenticationDisabled;
+use Qruto\Cave\Fortify;
 
 class DisableTwoFactorAuthentication
 {

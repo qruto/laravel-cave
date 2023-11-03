@@ -1,9 +1,9 @@
 <?php
 
-namespace Laravel\Fortify\Tests;
+namespace Qruto\Cave\Tests;
 
 use Illuminate\Contracts\Auth\Authenticatable;
-use Laravel\Fortify\Contracts\UpdatesUserProfileInformation;
+use Qruto\Cave\Contracts\UpdatesUserProfileInformation;
 use Mockery;
 
 class ProfileInformationControllerTest extends OrchestraTestCase

@@ -1,16 +1,16 @@
 <?php
 
-namespace Laravel\Fortify\Http\Controllers;
+namespace Qruto\Cave\Http\Controllers;
 
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Contracts\Auth\StatefulGuard;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Str;
-use Laravel\Fortify\Contracts\CreatesNewUsers;
-use Laravel\Fortify\Contracts\RegisterResponse;
-use Laravel\Fortify\Contracts\RegisterViewResponse;
-use Laravel\Fortify\Fortify;
+use Qruto\Cave\Contracts\CreatesNewUsers;
+use Qruto\Cave\Contracts\RegisterResponse;
+use Qruto\Cave\Contracts\RegisterViewResponse;
+use Qruto\Cave\Fortify;
 
 class RegisteredUserController extends Controller
 {
@@ -36,7 +36,7 @@ class RegisteredUserController extends Controller
      * Show the registration view.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Laravel\Fortify\Contracts\RegisterViewResponse
+     * @return \Qruto\Cave\Contracts\RegisterViewResponse
      */
     public function create(Request $request): RegisterViewResponse
     {
@@ -47,8 +47,8 @@ class RegisteredUserController extends Controller
      * Create a new registered user.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \Laravel\Fortify\Contracts\CreatesNewUsers  $creator
-     * @return \Laravel\Fortify\Contracts\RegisterResponse
+     * @param  \Qruto\Cave\Contracts\CreatesNewUsers  $creator
+     * @return \Qruto\Cave\Contracts\RegisterResponse
      */
     public function store(Request $request,
                           CreatesNewUsers $creator): RegisterResponse

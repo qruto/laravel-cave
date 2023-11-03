@@ -1,10 +1,10 @@
 <?php
 
-namespace Laravel\Fortify\Actions;
+namespace Qruto\Cave\Actions;
 
 use Illuminate\Support\Collection;
-use Laravel\Fortify\Events\RecoveryCodesGenerated;
-use Laravel\Fortify\RecoveryCode;
+use Qruto\Cave\Events\RecoveryCodesGenerated;
+use Qruto\Cave\RecoveryCode;
 
 class GenerateNewRecoveryCodes
 {

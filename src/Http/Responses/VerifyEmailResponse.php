@@ -1,10 +1,10 @@
 <?php
 
-namespace Laravel\Fortify\Http\Responses;
+namespace Qruto\Cave\Http\Responses;
 
 use Illuminate\Http\JsonResponse;
-use Laravel\Fortify\Contracts\VerifyEmailResponse as VerifyEmailResponseContract;
-use Laravel\Fortify\Fortify;
+use Qruto\Cave\Contracts\VerifyEmailResponse as VerifyEmailResponseContract;
+use Qruto\Cave\Fortify;
 
 class VerifyEmailResponse implements VerifyEmailResponseContract
 {

@@ -1,22 +1,22 @@
 <?php
 
-namespace Laravel\Fortify\Http\Controllers;
+namespace Qruto\Cave\Http\Controllers;
 
 use Illuminate\Contracts\Auth\StatefulGuard;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Routing\Pipeline;
-use Laravel\Fortify\Actions\AttemptToAuthenticate;
-use Laravel\Fortify\Actions\CanonicalizeUsername;
-use Laravel\Fortify\Actions\EnsureLoginIsNotThrottled;
-use Laravel\Fortify\Actions\PrepareAuthenticatedSession;
-use Laravel\Fortify\Actions\RedirectIfTwoFactorAuthenticatable;
-use Laravel\Fortify\Contracts\LoginResponse;
-use Laravel\Fortify\Contracts\LoginViewResponse;
-use Laravel\Fortify\Contracts\LogoutResponse;
-use Laravel\Fortify\Features;
-use Laravel\Fortify\Fortify;
-use Laravel\Fortify\Http\Requests\LoginRequest;
+use Qruto\Cave\Actions\AttemptToAuthenticate;
+use Qruto\Cave\Actions\CanonicalizeUsername;
+use Qruto\Cave\Actions\EnsureLoginIsNotThrottled;
+use Qruto\Cave\Actions\PrepareAuthenticatedSession;
+use Qruto\Cave\Actions\RedirectIfTwoFactorAuthenticatable;
+use Qruto\Cave\Contracts\LoginResponse;
+use Qruto\Cave\Contracts\LoginViewResponse;
+use Qruto\Cave\Contracts\LogoutResponse;
+use Qruto\Cave\Features;
+use Qruto\Cave\Fortify;
+use Qruto\Cave\Http\Requests\LoginRequest;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -42,7 +42,7 @@ class AuthenticatedSessionController extends Controller
      * Show the login view.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Laravel\Fortify\Contracts\LoginViewResponse
+     * @return \Qruto\Cave\Contracts\LoginViewResponse
      */
     public function create(Request $request): LoginViewResponse
     {
@@ -52,7 +52,7 @@ class AuthenticatedSessionController extends Controller
     /**
      * Attempt to authenticate a new session.
      *
-     * @param  \Laravel\Fortify\Http\Requests\LoginRequest  $request
+     * @param  \Qruto\Cave\Http\Requests\LoginRequest  $request
      * @return mixed
      */
     public function store(LoginRequest $request)
@@ -65,7 +65,7 @@ class AuthenticatedSessionController extends Controller
     /**
      * Get the authentication pipeline instance.
      *
-     * @param  \Laravel\Fortify\Http\Requests\LoginRequest  $request
+     * @param  \Qruto\Cave\Http\Requests\LoginRequest  $request
      * @return \Illuminate\Pipeline\Pipeline
      */
     protected function loginPipeline(LoginRequest $request)
@@ -95,7 +95,7 @@ class AuthenticatedSessionController extends Controller
      * Destroy an authenticated session.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Laravel\Fortify\Contracts\LogoutResponse
+     * @return \Qruto\Cave\Contracts\LogoutResponse
      */
     public function destroy(Request $request): LogoutResponse
     {

@@ -1,9 +1,9 @@
 <?php
 
-namespace Laravel\Fortify\Http\Responses;
+namespace Qruto\Cave\Http\Responses;
 
 use Illuminate\Validation\ValidationException;
-use Laravel\Fortify\Contracts\FailedPasswordResetResponse as FailedPasswordResetResponseContract;
+use Qruto\Cave\Contracts\FailedPasswordResetResponse as FailedPasswordResetResponseContract;
 
 class FailedPasswordResetResponse implements FailedPasswordResetResponseContract
 {

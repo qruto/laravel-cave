@@ -1,9 +1,9 @@
 <?php
 
-namespace Laravel\Fortify\Http\Requests;
+namespace Qruto\Cave\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Laravel\Fortify\Fortify;
+use Qruto\Cave\Fortify;
 
 class LoginRequest extends FormRequest
 {

@@ -1,14 +1,14 @@
 <?php
 
-namespace Laravel\Fortify\Http\Controllers;
+namespace Qruto\Cave\Http\Controllers;
 
 use Illuminate\Contracts\Auth\StatefulGuard;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Laravel\Fortify\Actions\ConfirmPassword;
-use Laravel\Fortify\Contracts\ConfirmPasswordViewResponse;
-use Laravel\Fortify\Contracts\FailedPasswordConfirmationResponse;
-use Laravel\Fortify\Contracts\PasswordConfirmedResponse;
+use Qruto\Cave\Actions\ConfirmPassword;
+use Qruto\Cave\Contracts\ConfirmPasswordViewResponse;
+use Qruto\Cave\Contracts\FailedPasswordConfirmationResponse;
+use Qruto\Cave\Contracts\PasswordConfirmedResponse;
 
 class ConfirmablePasswordController extends Controller
 {
@@ -34,7 +34,7 @@ class ConfirmablePasswordController extends Controller
      * Show the confirm password view.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Laravel\Fortify\Contracts\ConfirmPasswordViewResponse
+     * @return \Qruto\Cave\Contracts\ConfirmPasswordViewResponse
      */
     public function show(Request $request)
     {

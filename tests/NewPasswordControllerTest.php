@@ -1,15 +1,15 @@
 <?php
 
-namespace Laravel\Fortify\Tests;
+namespace Qruto\Cave\Tests;
 
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\PasswordBroker;
 use Illuminate\Contracts\Auth\StatefulGuard;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Password;
-use Laravel\Fortify\Contracts\ResetPasswordViewResponse;
-use Laravel\Fortify\Contracts\ResetsUserPasswords;
-use Laravel\Fortify\Fortify;
+use Qruto\Cave\Contracts\ResetPasswordViewResponse;
+use Qruto\Cave\Contracts\ResetsUserPasswords;
+use Qruto\Cave\Fortify;
 use Mockery;
 
 class NewPasswordControllerTest extends OrchestraTestCase

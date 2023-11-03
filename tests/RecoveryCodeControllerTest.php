@@ -1,11 +1,11 @@
 <?php
 
-namespace Laravel\Fortify\Tests;
+namespace Qruto\Cave\Tests;
 
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
-use Laravel\Fortify\Events\RecoveryCodesGenerated;
+use Qruto\Cave\Events\RecoveryCodesGenerated;
 
 class RecoveryCodeControllerTest extends OrchestraTestCase
 {

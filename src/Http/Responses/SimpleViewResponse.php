@@ -1,15 +1,15 @@
 <?php
 
-namespace Laravel\Fortify\Http\Responses;
+namespace Qruto\Cave\Http\Responses;
 
 use Illuminate\Contracts\Support\Responsable;
-use Laravel\Fortify\Contracts\ConfirmPasswordViewResponse;
-use Laravel\Fortify\Contracts\LoginViewResponse;
-use Laravel\Fortify\Contracts\RegisterViewResponse;
-use Laravel\Fortify\Contracts\RequestPasswordResetLinkViewResponse;
-use Laravel\Fortify\Contracts\ResetPasswordViewResponse;
-use Laravel\Fortify\Contracts\TwoFactorChallengeViewResponse;
-use Laravel\Fortify\Contracts\VerifyEmailViewResponse;
+use Qruto\Cave\Contracts\ConfirmPasswordViewResponse;
+use Qruto\Cave\Contracts\LoginViewResponse;
+use Qruto\Cave\Contracts\RegisterViewResponse;
+use Qruto\Cave\Contracts\RequestPasswordResetLinkViewResponse;
+use Qruto\Cave\Contracts\ResetPasswordViewResponse;
+use Qruto\Cave\Contracts\TwoFactorChallengeViewResponse;
+use Qruto\Cave\Contracts\VerifyEmailViewResponse;
 
 class SimpleViewResponse implements
     LoginViewResponse,

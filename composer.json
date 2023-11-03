@@ -1,56 +1,64 @@
 {
-    "name": "laravel/fortify",
-    "description": "Backend controllers and scaffolding for Laravel authentication.",
-    "keywords": ["laravel", "auth"],
+    "name": "qruto/laravel-cave",
+    "description": "Backend controllers and scaffolding for Laravel web authentication.",
+    "keywords": ["laravel", "auth", "webauthn"],
     "license": "MIT",
     "support": {
-        "issues": "https://github.com/laravel/fortify/issues",
-        "source": "https://github.com/laravel/fortify"
+        "issues": "https://github.com/qruto/laravel-cave/issues",
+        "source": "https://github.com/qruto/laravel-cave"
     },
     "authors": [
         {
-            "name": "Taylor Otwell",
-            "email": "taylor@laravel.com"
+            "name": "Slava Razum",
+            "email": "razum@qruto.to"
         }
     ],
     "require": {
-        "php": "^7.3|^8.0",
+        "php": "^8.2",
         "ext-json": "*",
-        "bacon/bacon-qr-code": "^2.0",
-        "illuminate/support": "^8.82|^9.0|^10.0",
-        "pragmarx/google2fa": "^7.0|^8.0"
+        "illuminate/support": "^10.0",
+        "spatie/laravel-package-tools": "^1.16.1"
     },
     "require-dev": {
-        "mockery/mockery": "^1.0",
-        "orchestra/testbench": "^6.34|^7.31|^8.11",
-        "phpstan/phpstan": "^1.10",
-        "phpunit/phpunit": "^9.3"
+        "mockery/mockery": "^1.6.6",
+        "orchestra/testbench": "^8.14",
+        "laravel/pint": "^1.13.5",
+        "nunomaduro/collision": "^7.10",
+        "nunomaduro/larastan": "^2.6.4",
+        "pestphp/pest": "^2.24.2",
+        "pestphp/pest-plugin-arch": "^2.4.1",
+        "pestphp/pest-plugin-laravel": "^2.2",
+        "phpstan/extension-installer": "^1.3.1",
+        "phpstan/phpstan-deprecation-rules": "^1.1.4",
+        "phpstan/phpstan-phpunit": "^1.3.15",
+        "spatie/laravel-ray": "^1.33"
     },
     "autoload": {
         "psr-4": {
-            "Laravel\\Fortify\\": "src/"
+            "Qruto\\Cave\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Laravel\\Fortify\\Tests\\": "tests/",
+            "Qruto\\Cave\\Tests\\": "tests/",
             "App\\": "workbench/app/",
             "Database\\Factories\\": "workbench/database/factories/"
         },
         "classmap": ["stubs/"]
     },
     "extra": {
-        "branch-alias": {
-            "dev-master": "1.x-dev"
-        },
         "laravel": {
             "providers": [
-                "Laravel\\Fortify\\FortifyServiceProvider"
+                "Qruto\\Cave\\CaveServiceProvider"
             ]
         }
     },
     "config": {
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true,
+            "phpstan/extension-installer": true
+        }
     },
     "minimum-stability": "dev",
     "prefer-stable": true,

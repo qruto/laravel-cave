@@ -1,12 +1,12 @@
 <?php
 
-namespace Laravel\Fortify\Tests;
+namespace Qruto\Cave\Tests;
 
 use App\Actions\Fortify\UpdateUserPassword;
 use Database\Factories\UserFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Validation\ValidationException;
-use Laravel\Fortify\Contracts\UpdatesUserPasswords;
+use Qruto\Cave\Contracts\UpdatesUserPasswords;
 
 class PasswordControllerTest extends OrchestraTestCase
 {

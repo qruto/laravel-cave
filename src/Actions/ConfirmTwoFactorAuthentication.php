@@ -1,24 +1,24 @@
 <?php
 
-namespace Laravel\Fortify\Actions;
+namespace Qruto\Cave\Actions;
 
 use Illuminate\Validation\ValidationException;
-use Laravel\Fortify\Contracts\TwoFactorAuthenticationProvider;
-use Laravel\Fortify\Events\TwoFactorAuthenticationConfirmed;
+use Qruto\Cave\Contracts\TwoFactorAuthenticationProvider;
+use Qruto\Cave\Events\TwoFactorAuthenticationConfirmed;
 
 class ConfirmTwoFactorAuthentication
 {
     /**
      * The two factor authentication provider.
      *
-     * @var \Laravel\Fortify\Contracts\TwoFactorAuthenticationProvider
+     * @var \Qruto\Cave\Contracts\TwoFactorAuthenticationProvider
      */
     protected $provider;
 
     /**
      * Create a new action instance.
      *
-     * @param  \Laravel\Fortify\Contracts\TwoFactorAuthenticationProvider  $provider
+     * @param  \Qruto\Cave\Contracts\TwoFactorAuthenticationProvider  $provider
      * @return void
      */
     public function __construct(TwoFactorAuthenticationProvider $provider)

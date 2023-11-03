@@ -1,14 +1,14 @@
 <?php
 
-namespace Laravel\Fortify\Actions;
+namespace Qruto\Cave\Actions;
 
 use Illuminate\Auth\Events\Failed;
 use Illuminate\Contracts\Auth\StatefulGuard;
 use Illuminate\Validation\ValidationException;
-use Laravel\Fortify\Events\TwoFactorAuthenticationChallenged;
-use Laravel\Fortify\Fortify;
-use Laravel\Fortify\LoginRateLimiter;
-use Laravel\Fortify\TwoFactorAuthenticatable;
+use Qruto\Cave\Events\TwoFactorAuthenticationChallenged;
+use Qruto\Cave\Fortify;
+use Qruto\Cave\LoginRateLimiter;
+use Qruto\Cave\TwoFactorAuthenticatable;
 
 class RedirectIfTwoFactorAuthenticatable
 {
@@ -22,7 +22,7 @@ class RedirectIfTwoFactorAuthenticatable
     /**
      * The login rate limiter instance.
      *
-     * @var \Laravel\Fortify\LoginRateLimiter
+     * @var \Qruto\Cave\LoginRateLimiter
      */
     protected $limiter;
 
@@ -30,7 +30,7 @@ class RedirectIfTwoFactorAuthenticatable
      * Create a new controller instance.
      *
      * @param  \Illuminate\Contracts\Auth\StatefulGuard  $guard
-     * @param  \Laravel\Fortify\LoginRateLimiter  $limiter
+     * @param  \Qruto\Cave\LoginRateLimiter  $limiter
      * @return void
      */
     public function __construct(StatefulGuard $guard, LoginRateLimiter $limiter)

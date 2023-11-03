@@ -1,14 +1,14 @@
 <?php
 
-namespace Laravel\Fortify\Tests;
+namespace Qruto\Cave\Tests;
 
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
-use Laravel\Fortify\Events\TwoFactorAuthenticationConfirmed;
-use Laravel\Fortify\Events\TwoFactorAuthenticationDisabled;
-use Laravel\Fortify\Events\TwoFactorAuthenticationEnabled;
-use Laravel\Fortify\TwoFactorAuthenticatable;
+use Qruto\Cave\Events\TwoFactorAuthenticationConfirmed;
+use Qruto\Cave\Events\TwoFactorAuthenticationDisabled;
+use Qruto\Cave\Events\TwoFactorAuthenticationEnabled;
+use Qruto\Cave\TwoFactorAuthenticatable;
 use PragmaRX\Google2FA\Google2FA;
 
 class TwoFactorAuthenticationControllerTest extends OrchestraTestCase

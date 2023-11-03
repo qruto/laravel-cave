@@ -1,9 +1,9 @@
 <?php
 
-namespace Laravel\Fortify\Tests;
+namespace Qruto\Cave\Tests;
 
 use Illuminate\Support\Str;
-use Laravel\Fortify\Rules\Password;
+use Qruto\Cave\Rules\Password;
 
 class PasswordRuleTest extends OrchestraTestCase
 {

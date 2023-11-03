@@ -1,10 +1,10 @@
 <?php
 
-namespace Laravel\Fortify\Http\Responses;
+namespace Qruto\Cave\Http\Responses;
 
 use Illuminate\Http\JsonResponse;
-use Laravel\Fortify\Contracts\PasswordUpdateResponse as PasswordUpdateResponseContract;
-use Laravel\Fortify\Fortify;
+use Qruto\Cave\Contracts\PasswordUpdateResponse as PasswordUpdateResponseContract;
+use Qruto\Cave\Fortify;
 
 class PasswordUpdateResponse implements PasswordUpdateResponseContract
 {

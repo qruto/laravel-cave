@@ -1,6 +1,6 @@
 <?php
 
-namespace Laravel\Fortify;
+namespace Qruto\Cave;
 
 use Illuminate\Cache\RateLimiter;
 use Illuminate\Http\Request;

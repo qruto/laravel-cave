@@ -1,9 +1,9 @@
 <?php
 
-namespace Laravel\Fortify\Tests;
+namespace Qruto\Cave\Tests;
 
 use Illuminate\Contracts\Auth\Authenticatable;
-use Laravel\Fortify\Contracts\VerifyEmailViewResponse;
+use Qruto\Cave\Contracts\VerifyEmailViewResponse;
 use Mockery;
 
 class EmailVerificationPromptControllerTest extends OrchestraTestCase

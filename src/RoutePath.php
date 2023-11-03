@@ -1,6 +1,6 @@
 <?php
 
-namespace Laravel\Fortify;
+namespace Qruto\Cave;
 
 class RoutePath
 {

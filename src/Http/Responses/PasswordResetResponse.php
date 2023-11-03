@@ -1,10 +1,10 @@
 <?php
 
-namespace Laravel\Fortify\Http\Responses;
+namespace Qruto\Cave\Http\Responses;
 
 use Illuminate\Http\JsonResponse;
-use Laravel\Fortify\Contracts\PasswordResetResponse as PasswordResetResponseContract;
-use Laravel\Fortify\Fortify;
+use Qruto\Cave\Contracts\PasswordResetResponse as PasswordResetResponseContract;
+use Qruto\Cave\Fortify;
 
 class PasswordResetResponse implements PasswordResetResponseContract
 {

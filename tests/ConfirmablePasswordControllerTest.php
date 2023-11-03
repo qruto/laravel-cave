@@ -1,11 +1,11 @@
 <?php
 
-namespace Laravel\Fortify\Tests;
+namespace Qruto\Cave\Tests;
 
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Laravel\Fortify\Contracts\ConfirmPasswordViewResponse;
-use Laravel\Fortify\Fortify;
+use Qruto\Cave\Contracts\ConfirmPasswordViewResponse;
+use Qruto\Cave\Fortify;
 
 class ConfirmablePasswordControllerTest extends OrchestraTestCase
 {

@@ -1,11 +1,11 @@
 <?php
 
-namespace Laravel\Fortify\Tests;
+namespace Qruto\Cave\Tests;
 
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\StatefulGuard;
-use Laravel\Fortify\Contracts\CreatesNewUsers;
-use Laravel\Fortify\Contracts\RegisterViewResponse;
+use Qruto\Cave\Contracts\CreatesNewUsers;
+use Qruto\Cave\Contracts\RegisterViewResponse;
 use Mockery;
 
 class RegisteredUserControllerTest extends OrchestraTestCase

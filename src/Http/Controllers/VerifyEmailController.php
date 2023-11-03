@@ -1,19 +1,19 @@
 <?php
 
-namespace Laravel\Fortify\Http\Controllers;
+namespace Qruto\Cave\Http\Controllers;
 
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Routing\Controller;
-use Laravel\Fortify\Contracts\VerifyEmailResponse;
-use Laravel\Fortify\Http\Requests\VerifyEmailRequest;
+use Qruto\Cave\Contracts\VerifyEmailResponse;
+use Qruto\Cave\Http\Requests\VerifyEmailRequest;
 
 class VerifyEmailController extends Controller
 {
     /**
      * Mark the authenticated user's email address as verified.
      *
-     * @param  \Laravel\Fortify\Http\Requests\VerifyEmailRequest  $request
-     * @return \Laravel\Fortify\Contracts\VerifyEmailResponse
+     * @param  \Qruto\Cave\Http\Requests\VerifyEmailRequest  $request
+     * @return \Qruto\Cave\Contracts\VerifyEmailResponse
      */
     public function __invoke(VerifyEmailRequest $request)
     {

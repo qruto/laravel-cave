@@ -1,9 +1,9 @@
 <?php
 
-namespace Laravel\Fortify;
+namespace Qruto\Cave;
 
 use Illuminate\Contracts\Cache\Repository;
-use Laravel\Fortify\Contracts\TwoFactorAuthenticationProvider as TwoFactorAuthenticationProviderContract;
+use Qruto\Cave\Contracts\TwoFactorAuthenticationProvider as TwoFactorAuthenticationProviderContract;
 use PragmaRX\Google2FA\Google2FA;
 
 class TwoFactorAuthenticationProvider implements TwoFactorAuthenticationProviderContract

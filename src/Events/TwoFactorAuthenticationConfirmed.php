@@ -1,6 +1,6 @@
 <?php
 
-namespace Laravel\Fortify\Events;
+namespace Qruto\Cave\Events;
 
 class TwoFactorAuthenticationConfirmed extends TwoFactorAuthenticationEvent
 {

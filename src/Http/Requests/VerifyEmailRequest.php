@@ -1,6 +1,6 @@
 <?php
 
-namespace Laravel\Fortify\Http\Requests;
+namespace Qruto\Cave\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 

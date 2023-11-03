@@ -1,19 +1,19 @@
 <?php
 
-namespace Laravel\Fortify;
+namespace Qruto\Cave;
 
-use Laravel\Fortify\Contracts\ConfirmPasswordViewResponse;
-use Laravel\Fortify\Contracts\CreatesNewUsers;
-use Laravel\Fortify\Contracts\LoginViewResponse;
-use Laravel\Fortify\Contracts\RegisterViewResponse;
-use Laravel\Fortify\Contracts\RequestPasswordResetLinkViewResponse;
-use Laravel\Fortify\Contracts\ResetPasswordViewResponse;
-use Laravel\Fortify\Contracts\ResetsUserPasswords;
-use Laravel\Fortify\Contracts\TwoFactorChallengeViewResponse;
-use Laravel\Fortify\Contracts\UpdatesUserPasswords;
-use Laravel\Fortify\Contracts\UpdatesUserProfileInformation;
-use Laravel\Fortify\Contracts\VerifyEmailViewResponse;
-use Laravel\Fortify\Http\Responses\SimpleViewResponse;
+use Qruto\Cave\Contracts\ConfirmPasswordViewResponse;
+use Qruto\Cave\Contracts\CreatesNewUsers;
+use Qruto\Cave\Contracts\LoginViewResponse;
+use Qruto\Cave\Contracts\RegisterViewResponse;
+use Qruto\Cave\Contracts\RequestPasswordResetLinkViewResponse;
+use Qruto\Cave\Contracts\ResetPasswordViewResponse;
+use Qruto\Cave\Contracts\ResetsUserPasswords;
+use Qruto\Cave\Contracts\TwoFactorChallengeViewResponse;
+use Qruto\Cave\Contracts\UpdatesUserPasswords;
+use Qruto\Cave\Contracts\UpdatesUserProfileInformation;
+use Qruto\Cave\Contracts\VerifyEmailViewResponse;
+use Qruto\Cave\Http\Responses\SimpleViewResponse;
 
 class Fortify
 {
