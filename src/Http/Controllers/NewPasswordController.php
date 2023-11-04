@@ -13,7 +13,7 @@ use Qruto\Cave\Contracts\FailedPasswordResetResponse;
 use Qruto\Cave\Contracts\PasswordResetResponse;
 use Qruto\Cave\Contracts\ResetPasswordViewResponse;
 use Qruto\Cave\Contracts\ResetsUserPasswords;
-use Qruto\Cave\Fortify;
+use Qruto\Cave\Cave;
 
 class NewPasswordController extends Controller
 {
@@ -56,7 +56,7 @@ class NewPasswordController extends Controller
     {
         $request->validate([
             'token' => 'required',
-            Fortify::email() => 'required|email',
+            Cave::email() => 'required|email',
             'password' => 'required',
         ]);
 
@@ -64,7 +64,7 @@ class NewPasswordController extends Controller
         // will update the password on an actual user model and persist it to the
         // database. Otherwise we will parse the error and return the response.
         $status = $this->broker()->reset(
-            $request->only(Fortify::email(), 'password', 'password_confirmation', 'token'),
+            $request->only(Cave::email(), 'password', 'password_confirmation', 'token'),
             function ($user) use ($request) {
                 app(ResetsUserPasswords::class)->reset($user, $request->all());
 

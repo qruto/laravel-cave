@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
-use Qruto\Cave\Fortify;
+use Qruto\Cave\Cave;
 
 class FortifyServiceProvider extends ServiceProvider
 {
@@ -28,13 +28,13 @@ class FortifyServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Fortify::createUsersUsing(CreateNewUser::class);
-        Fortify::updateUserProfileInformationUsing(UpdateUserProfileInformation::class);
-        Fortify::updateUserPasswordsUsing(UpdateUserPassword::class);
-        Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
+        Cave::createUsersUsing(CreateNewUser::class);
+        Cave::updateUserProfileInformationUsing(UpdateUserProfileInformation::class);
+        Cave::updateUserPasswordsUsing(UpdateUserPassword::class);
+        Cave::resetUserPasswordsUsing(ResetUserPassword::class);
 
         RateLimiter::for('login', function (Request $request) {
-            $throttleKey = Str::transliterate(Str::lower($request->input(Fortify::username())).'|'.$request->ip());
+            $throttleKey = Str::transliterate(Str::lower($request->input(Cave::username())).'|'.$request->ip());
 
             return Limit::perMinute(5)->by($throttleKey);
         });

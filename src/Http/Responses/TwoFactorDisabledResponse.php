@@ -4,7 +4,7 @@ namespace Qruto\Cave\Http\Responses;
 
 use Illuminate\Http\JsonResponse;
 use Qruto\Cave\Contracts\TwoFactorLoginResponse as TwoFactorLoginResponseContract;
-use Qruto\Cave\Fortify;
+use Qruto\Cave\Cave;
 
 class TwoFactorDisabledResponse implements TwoFactorLoginResponseContract
 {
@@ -18,6 +18,6 @@ class TwoFactorDisabledResponse implements TwoFactorLoginResponseContract
     {
         return $request->wantsJson()
                     ? new JsonResponse('', 200)
-                    : back()->with('status', Fortify::TWO_FACTOR_AUTHENTICATION_DISABLED);
+                    : back()->with('status', Cave::TWO_FACTOR_AUTHENTICATION_DISABLED);
     }
 }

@@ -4,7 +4,7 @@ namespace Qruto\Cave\Http\Responses;
 
 use Illuminate\Http\JsonResponse;
 use Qruto\Cave\Contracts\LogoutResponse as LogoutResponseContract;
-use Qruto\Cave\Fortify;
+use Qruto\Cave\Cave;
 
 class LogoutResponse implements LogoutResponseContract
 {
@@ -18,6 +18,6 @@ class LogoutResponse implements LogoutResponseContract
     {
         return $request->wantsJson()
                     ? new JsonResponse('', 204)
-                    : redirect(Fortify::redirects('logout', '/'));
+                    : redirect(Cave::redirects('logout', '/'));
     }
 }

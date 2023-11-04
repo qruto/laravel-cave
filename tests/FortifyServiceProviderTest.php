@@ -4,13 +4,13 @@ namespace Qruto\Cave\Tests;
 
 use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Http\JsonResponse;
-use Qruto\Cave\Fortify;
+use Qruto\Cave\Cave;
 
 class FortifyServiceProviderTest extends OrchestraTestCase
 {
     public function test_views_can_be_customized()
     {
-        Fortify::loginView(function () {
+        Cave::loginView(function () {
             return 'foo';
         });
 
@@ -22,7 +22,7 @@ class FortifyServiceProviderTest extends OrchestraTestCase
 
     public function test_customized_views_can_return_their_own_responsable()
     {
-        Fortify::loginView(function () {
+        Cave::loginView(function () {
             return new class implements Responsable
             {
                 public function toResponse($request)

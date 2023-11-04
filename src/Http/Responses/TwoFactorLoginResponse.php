@@ -4,7 +4,7 @@ namespace Qruto\Cave\Http\Responses;
 
 use Illuminate\Http\JsonResponse;
 use Qruto\Cave\Contracts\TwoFactorLoginResponse as TwoFactorLoginResponseContract;
-use Qruto\Cave\Fortify;
+use Qruto\Cave\Cave;
 
 class TwoFactorLoginResponse implements TwoFactorLoginResponseContract
 {
@@ -18,6 +18,6 @@ class TwoFactorLoginResponse implements TwoFactorLoginResponseContract
     {
         return $request->wantsJson()
                     ? new JsonResponse('', 204)
-                    : redirect()->intended(Fortify::redirects('login'));
+                    : redirect()->intended(Cave::redirects('login'));
     }
 }

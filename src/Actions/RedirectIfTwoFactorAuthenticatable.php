@@ -6,7 +6,7 @@ use Illuminate\Auth\Events\Failed;
 use Illuminate\Contracts\Auth\StatefulGuard;
 use Illuminate\Validation\ValidationException;
 use Qruto\Cave\Events\TwoFactorAuthenticationChallenged;
-use Qruto\Cave\Fortify;
+use Qruto\Cave\Cave;
 use Qruto\Cave\LoginRateLimiter;
 use Qruto\Cave\TwoFactorAuthenticatable;
 
@@ -50,7 +50,7 @@ class RedirectIfTwoFactorAuthenticatable
     {
         $user = $this->validateCredentials($request);
 
-        if (Fortify::confirmsTwoFactorAuthentication()) {
+        if (Cave::confirmsTwoFactorAuthentication()) {
             if (optional($user)->two_factor_secret &&
                 ! is_null(optional($user)->two_factor_confirmed_at) &&
                 in_array(TwoFactorAuthenticatable::class, class_uses_recursive($user))) {
@@ -76,8 +76,8 @@ class RedirectIfTwoFactorAuthenticatable
      */
     protected function validateCredentials($request)
     {
-        if (Fortify::$authenticateUsingCallback) {
-            return tap(call_user_func(Fortify::$authenticateUsingCallback, $request), function ($user) use ($request) {
+        if (Cave::$authenticateUsingCallback) {
+            return tap(call_user_func(Cave::$authenticateUsingCallback, $request), function ($user) use ($request) {
                 if (! $user) {
                     $this->fireFailedEvent($request);
 
@@ -88,7 +88,7 @@ class RedirectIfTwoFactorAuthenticatable
 
         $model = $this->guard->getProvider()->getModel();
 
-        return tap($model::where(Fortify::username(), $request->{Fortify::username()})->first(), function ($user) use ($request) {
+        return tap($model::where(Cave::username(), $request->{Cave::username()})->first(), function ($user) use ($request) {
             if (! $user || ! $this->guard->getProvider()->validateCredentials($user, ['password' => $request->password])) {
                 $this->fireFailedEvent($request, $user);
 
@@ -110,7 +110,7 @@ class RedirectIfTwoFactorAuthenticatable
         $this->limiter->increment($request);
 
         throw ValidationException::withMessages([
-            Fortify::username() => [trans('auth.failed')],
+            Cave::username() => [trans('auth.failed')],
         ]);
     }
 
@@ -124,7 +124,7 @@ class RedirectIfTwoFactorAuthenticatable
     protected function fireFailedEvent($request, $user = null)
     {
         event(new Failed(config('fortify.guard'), $user, [
-            Fortify::username() => $request->{Fortify::username()},
+            Cave::username() => $request->{Cave::username()},
             'password' => $request->password,
         ]));
     }

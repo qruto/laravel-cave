@@ -19,7 +19,7 @@ trait TwoFactorAuthenticatable
      */
     public function hasEnabledTwoFactorAuthentication()
     {
-        if (Fortify::confirmsTwoFactorAuthentication()) {
+        if (Cave::confirmsTwoFactorAuthentication()) {
             return ! is_null($this->two_factor_secret) &&
                    ! is_null($this->two_factor_confirmed_at);
         }
@@ -80,7 +80,7 @@ trait TwoFactorAuthenticatable
     {
         return app(TwoFactorAuthenticationProvider::class)->qrCodeUrl(
             config('app.name'),
-            $this->{Fortify::username()},
+            $this->{Cave::username()},
             decrypt($this->two_factor_secret)
         );
     }

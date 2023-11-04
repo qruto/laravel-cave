@@ -7,7 +7,7 @@ use Illuminate\Routing\Controller;
 use Illuminate\Support\Str;
 use Qruto\Cave\Contracts\ProfileInformationUpdatedResponse;
 use Qruto\Cave\Contracts\UpdatesUserProfileInformation;
-use Qruto\Cave\Fortify;
+use Qruto\Cave\Cave;
 
 class ProfileInformationController extends Controller
 {
@@ -23,7 +23,7 @@ class ProfileInformationController extends Controller
     {
         if (config('fortify.lowercase_usernames')) {
             $request->merge([
-                Fortify::username() => Str::lower($request->{Fortify::username()}),
+                Cave::username() => Str::lower($request->{Cave::username()}),
             ]);
         }
 

@@ -2,8 +2,22 @@
 
 namespace Qruto\Cave;
 
+use Cose\Algorithm\Manager;
+use Cose\Algorithm\Signature\ECDSA\ES256;
+use Cose\Algorithm\Signature\ECDSA\ES256K;
+use Cose\Algorithm\Signature\ECDSA\ES384;
+use Cose\Algorithm\Signature\ECDSA\ES512;
+use Cose\Algorithm\Signature\EdDSA\Ed256;
+use Cose\Algorithm\Signature\EdDSA\Ed512;
+use Cose\Algorithm\Signature\RSA\PS256;
+use Cose\Algorithm\Signature\RSA\PS384;
+use Cose\Algorithm\Signature\RSA\PS512;
+use Cose\Algorithm\Signature\RSA\RS256;
+use Cose\Algorithm\Signature\RSA\RS384;
+use Cose\Algorithm\Signature\RSA\RS512;
 use Illuminate\Contracts\Auth\StatefulGuard;
 use Illuminate\Contracts\Cache\Repository;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
@@ -48,31 +62,99 @@ use Qruto\Cave\Http\Responses\TwoFactorDisabledResponse;
 use Qruto\Cave\Http\Responses\TwoFactorEnabledResponse;
 use Qruto\Cave\Http\Responses\TwoFactorLoginResponse;
 use Qruto\Cave\Http\Responses\VerifyEmailResponse;
-use PragmaRX\Google2FA\Google2FA;
+use Spatie\LaravelPackageTools\Package;
+use Spatie\LaravelPackageTools\PackageServiceProvider;
+use Webauthn\AttestationStatement\AttestationObjectLoader;
+use Webauthn\AttestationStatement\AttestationStatementSupportManager;
+use Webauthn\AttestationStatement\NoneAttestationStatementSupport;
+use Webauthn\AuthenticationExtensions\AuthenticationExtensionsClientInputs;
+use Webauthn\AuthenticationExtensions\ExtensionOutputCheckerHandler;
+use Webauthn\AuthenticatorAssertionResponseValidator;
+use Webauthn\AuthenticatorAttestationResponseValidator;
+use Webauthn\AuthenticatorSelectionCriteria;
+use Webauthn\PublicKeyCredentialLoader;
+use Webauthn\PublicKeyCredentialRpEntity;
 
-class CaveServiceProvider extends ServiceProvider
+class CaveServiceProvider extends PackageServiceProvider
 {
+    public function configurePackage(Package $package) : void
+    {
+        $package->name('cave')
+            ->hasConfigFile()
+            ->hasMigration('create_auth_keys_table');
+    }
+
     /**
      * Register any application services.
      *
      * @return void
      */
-    public function register()
+    public function packageRegistered()
     {
-        $this->mergeConfigFrom(__DIR__.'/../config/fortify.php', 'fortify');
+        $this->registerWebAuthnEntities();
 
         $this->registerResponseBindings();
 
-        $this->app->singleton(TwoFactorAuthenticationProviderContract::class, function ($app) {
-            return new TwoFactorAuthenticationProvider(
-                $app->make(Google2FA::class),
-                $app->make(Repository::class)
-            );
-        });
-
         $this->app->bind(StatefulGuard::class, function () {
-            return Auth::guard(config('fortify.guard', null));
+            return Auth::guard(config('Cave.guard', null));
         });
+    }
+
+    protected function registerWebAuthnEntities()
+    {
+        $this->app->instance('host', parse_url(config('app.url'), PHP_URL_HOST));
+
+        $this->app->bind(PublicKeyCredentialRpEntity::class, fn () => new PublicKeyCredentialRpEntity(
+            config('app.name'),
+            $this->app['host'],
+            // TODO: Add icon
+            null,
+        ));
+
+        $this->app->bind(AuthenticatorSelectionCriteria::class, fn () => new AuthenticatorSelectionCriteria(
+            AuthenticatorSelectionCriteria::AUTHENTICATOR_ATTACHMENT_NO_PREFERENCE,
+            AuthenticatorSelectionCriteria::USER_VERIFICATION_REQUIREMENT_REQUIRED,
+            AuthenticatorSelectionCriteria::RESIDENT_KEY_REQUIREMENT_REQUIRED,
+            true,
+        ));
+
+        $this->app->bind(AuthenticationExtensionsClientInputs::class, fn () => AuthenticationExtensionsClientInputs::createFromArray(config('webauthn.extensions'))
+        );
+
+        $this->app->bind(AttestationStatementSupportManager::class, fn () => tap(new AttestationStatementSupportManager())->add(NoneAttestationStatementSupport::create()));
+
+        $this->app->bind(PublicKeyCredentialLoader::class, fn () => new PublicKeyCredentialLoader(
+            new AttestationObjectLoader($this->app[AttestationStatementSupportManager::class]),
+        ));
+
+        $this->app->bind(AuthenticatorAttestationResponseValidator::class, fn () => new AuthenticatorAttestationResponseValidator(
+            $this->app[AttestationStatementSupportManager::class],
+            null,
+            null,
+            ExtensionOutputCheckerHandler::create(),
+        ));
+
+        $this->app->bind(Manager::class, fn () => tap(Manager::create())->add(
+            ES256::create(),
+            ES256K::create(),
+            ES384::create(),
+            ES512::create(),
+            RS256::create(),
+            RS384::create(),
+            RS512::create(),
+            PS256::create(),
+            PS384::create(),
+            PS512::create(),
+            Ed256::create(),
+            Ed512::create(),
+        ));
+
+        $this->app->bind(AuthenticatorAssertionResponseValidator::class, fn () => new AuthenticatorAssertionResponseValidator(
+            null,
+            null,
+            ExtensionOutputCheckerHandler::create(),
+            $this->app[Manager::class],
+        ));
     }
 
     /**
@@ -109,9 +191,19 @@ class CaveServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot()
+    public function packageBooted()
     {
-        $this->configurePublishing();
+        if ($this->app->runningInConsole()) {
+            $this->publishes([
+                __DIR__.'/../stubs/CreateNewUser.php' => app_path('Actions/Cave/CreateNewUser.php'),
+                __DIR__.'/../stubs/CaveServiceProvider.php' => app_path('Providers/CaveServiceProvider.php'),
+                __DIR__.'/../stubs/PasswordValidationRules.php' => app_path('Actions/Cave/PasswordValidationRules.php'),
+                __DIR__.'/../stubs/ResetUserPassword.php' => app_path('Actions/Cave/ResetUserPassword.php'),
+                __DIR__.'/../stubs/UpdateUserProfileInformation.php' => app_path('Actions/Cave/UpdateUserProfileInformation.php'),
+                __DIR__.'/../stubs/UpdateUserPassword.php' => app_path('Actions/Cave/UpdateUserPassword.php'),
+            ], 'cave-support');
+        }
+
         $this->configureRoutes();
     }
 
@@ -120,27 +212,6 @@ class CaveServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    protected function configurePublishing()
-    {
-        if ($this->app->runningInConsole()) {
-            $this->publishes([
-                __DIR__.'/../stubs/fortify.php' => config_path('fortify.php'),
-            ], 'fortify-config');
-
-            $this->publishes([
-                __DIR__.'/../stubs/CreateNewUser.php' => app_path('Actions/Fortify/CreateNewUser.php'),
-                __DIR__.'/../stubs/FortifyServiceProvider.php' => app_path('Providers/FortifyServiceProvider.php'),
-                __DIR__.'/../stubs/PasswordValidationRules.php' => app_path('Actions/Fortify/PasswordValidationRules.php'),
-                __DIR__.'/../stubs/ResetUserPassword.php' => app_path('Actions/Fortify/ResetUserPassword.php'),
-                __DIR__.'/../stubs/UpdateUserProfileInformation.php' => app_path('Actions/Fortify/UpdateUserProfileInformation.php'),
-                __DIR__.'/../stubs/UpdateUserPassword.php' => app_path('Actions/Fortify/UpdateUserPassword.php'),
-            ], 'fortify-support');
-
-            $this->publishes([
-                __DIR__.'/../database/migrations' => database_path('migrations'),
-            ], 'fortify-migrations');
-        }
-    }
 
     /**
      * Configure the routes offered by the application.
@@ -149,11 +220,11 @@ class CaveServiceProvider extends ServiceProvider
      */
     protected function configureRoutes()
     {
-        if (Fortify::$registersRoutes) {
+        if (Cave::$registersRoutes) {
             Route::group([
                 'namespace' => 'Qruto\Cave\Http\Controllers',
-                'domain' => config('fortify.domain', null),
-                'prefix' => config('fortify.prefix'),
+                'domain' => config('cave.domain', null),
+                'prefix' => config('cave.prefix'),
             ], function () {
                 $this->loadRoutesFrom(__DIR__.'/../routes/routes.php');
             });

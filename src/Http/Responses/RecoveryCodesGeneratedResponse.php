@@ -4,7 +4,7 @@ namespace Qruto\Cave\Http\Responses;
 
 use Illuminate\Http\JsonResponse;
 use Qruto\Cave\Contracts\RecoveryCodesGeneratedResponse as RecoveryCodesGeneratedResponseContract;
-use Qruto\Cave\Fortify;
+use Qruto\Cave\Cave;
 
 class RecoveryCodesGeneratedResponse implements RecoveryCodesGeneratedResponseContract
 {
@@ -18,6 +18,6 @@ class RecoveryCodesGeneratedResponse implements RecoveryCodesGeneratedResponseCo
     {
         return $request->wantsJson()
                     ? new JsonResponse('', 200)
-                    : back()->with('status', Fortify::RECOVERY_CODES_GENERATED);
+                    : back()->with('status', Cave::RECOVERY_CODES_GENERATED);
     }
 }

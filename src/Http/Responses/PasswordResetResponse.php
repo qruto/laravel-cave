@@ -4,7 +4,7 @@ namespace Qruto\Cave\Http\Responses;
 
 use Illuminate\Http\JsonResponse;
 use Qruto\Cave\Contracts\PasswordResetResponse as PasswordResetResponseContract;
-use Qruto\Cave\Fortify;
+use Qruto\Cave\Cave;
 
 class PasswordResetResponse implements PasswordResetResponseContract
 {
@@ -36,6 +36,6 @@ class PasswordResetResponse implements PasswordResetResponseContract
     {
         return $request->wantsJson()
                     ? new JsonResponse(['message' => trans($this->status)], 200)
-                    : redirect(Fortify::redirects('password-reset', config('fortify.views', true) ? route('login') : null))->with('status', trans($this->status));
+                    : redirect(Cave::redirects('password-reset', config('fortify.views', true) ? route('login') : null))->with('status', trans($this->status));
     }
 }

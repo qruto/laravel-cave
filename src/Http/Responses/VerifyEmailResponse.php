@@ -4,7 +4,7 @@ namespace Qruto\Cave\Http\Responses;
 
 use Illuminate\Http\JsonResponse;
 use Qruto\Cave\Contracts\VerifyEmailResponse as VerifyEmailResponseContract;
-use Qruto\Cave\Fortify;
+use Qruto\Cave\Cave;
 
 class VerifyEmailResponse implements VerifyEmailResponseContract
 {
@@ -18,6 +18,6 @@ class VerifyEmailResponse implements VerifyEmailResponseContract
     {
         return $request->wantsJson()
             ? new JsonResponse('', 204)
-            : redirect()->intended(Fortify::redirects('email-verification').'?verified=1');
+            : redirect()->intended(Cave::redirects('email-verification').'?verified=1');
     }
 }

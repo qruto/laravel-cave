@@ -10,7 +10,7 @@ use Illuminate\Support\Str;
 use Qruto\Cave\Contracts\CreatesNewUsers;
 use Qruto\Cave\Contracts\RegisterResponse;
 use Qruto\Cave\Contracts\RegisterViewResponse;
-use Qruto\Cave\Fortify;
+use Qruto\Cave\Cave;
 
 class RegisteredUserController extends Controller
 {
@@ -55,7 +55,7 @@ class RegisteredUserController extends Controller
     {
         if (config('fortify.lowercase_usernames')) {
             $request->merge([
-                Fortify::username() => Str::lower($request->{Fortify::username()}),
+                Cave::username() => Str::lower($request->{Cave::username()}),
             ]);
         }
 

@@ -4,7 +4,7 @@ namespace Qruto\Cave\Http\Responses;
 
 use Illuminate\Http\JsonResponse;
 use Qruto\Cave\Contracts\PasswordUpdateResponse as PasswordUpdateResponseContract;
-use Qruto\Cave\Fortify;
+use Qruto\Cave\Cave;
 
 class PasswordUpdateResponse implements PasswordUpdateResponseContract
 {
@@ -18,6 +18,6 @@ class PasswordUpdateResponse implements PasswordUpdateResponseContract
     {
         return $request->wantsJson()
             ? new JsonResponse('', 200)
-            : back()->with('status', Fortify::PASSWORD_UPDATED);
+            : back()->with('status', Cave::PASSWORD_UPDATED);
     }
 }

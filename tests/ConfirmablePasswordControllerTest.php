@@ -5,7 +5,7 @@ namespace Qruto\Cave\Tests;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Qruto\Cave\Contracts\ConfirmPasswordViewResponse;
-use Qruto\Cave\Fortify;
+use Qruto\Cave\Cave;
 
 class ConfirmablePasswordControllerTest extends OrchestraTestCase
 {
@@ -88,7 +88,7 @@ class ConfirmablePasswordControllerTest extends OrchestraTestCase
 
     public function test_password_confirmation_can_be_customized()
     {
-        Fortify::$confirmPasswordsUsingCallback = function () {
+        Cave::$confirmPasswordsUsingCallback = function () {
             return true;
         };
 
@@ -103,12 +103,12 @@ class ConfirmablePasswordControllerTest extends OrchestraTestCase
         $response->assertSessionHas('auth.password_confirmed_at');
         $response->assertRedirect('http://foo.com/bar');
 
-        Fortify::$confirmPasswordsUsingCallback = null;
+        Cave::$confirmPasswordsUsingCallback = null;
     }
 
     public function test_password_confirmation_can_be_customized_and_fail_without_password()
     {
-        Fortify::$confirmPasswordsUsingCallback = function () {
+        Cave::$confirmPasswordsUsingCallback = function () {
             return true;
         };
 
@@ -123,7 +123,7 @@ class ConfirmablePasswordControllerTest extends OrchestraTestCase
         $response->assertSessionHas('auth.password_confirmed_at');
         $response->assertRedirect('http://foo.com/bar');
 
-        Fortify::$confirmPasswordsUsingCallback = null;
+        Cave::$confirmPasswordsUsingCallback = null;
     }
 
     public function test_password_can_be_confirmed_with_json()

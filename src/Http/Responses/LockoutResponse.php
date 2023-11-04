@@ -5,7 +5,7 @@ namespace Qruto\Cave\Http\Responses;
 use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
 use Qruto\Cave\Contracts\LockoutResponse as LockoutResponseContract;
-use Qruto\Cave\Fortify;
+use Qruto\Cave\Cave;
 use Qruto\Cave\LoginRateLimiter;
 
 class LockoutResponse implements LockoutResponseContract
@@ -38,7 +38,7 @@ class LockoutResponse implements LockoutResponseContract
     {
         return with($this->limiter->availableIn($request), function ($seconds) {
             throw ValidationException::withMessages([
-                Fortify::username() => [
+                Cave::username() => [
                     trans('auth.throttle', [
                         'seconds' => $seconds,
                         'minutes' => ceil($seconds / 60),

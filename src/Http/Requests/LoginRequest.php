@@ -3,7 +3,7 @@
 namespace Qruto\Cave\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Qruto\Cave\Fortify;
+use Qruto\Cave\Cave;
 
 class LoginRequest extends FormRequest
 {
@@ -25,7 +25,7 @@ class LoginRequest extends FormRequest
     public function rules()
     {
         return [
-            Fortify::username() => 'required|string',
+            Cave::username() => 'required|string',
             'password' => 'required|string',
         ];
     }

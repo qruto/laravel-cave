@@ -4,7 +4,7 @@ namespace Qruto\Cave\Http\Responses;
 
 use Illuminate\Http\JsonResponse;
 use Qruto\Cave\Contracts\EmailVerificationNotificationSentResponse as EmailVerificationNotificationSentResponseContract;
-use Qruto\Cave\Fortify;
+use Qruto\Cave\Cave;
 
 class EmailVerificationNotificationSentResponse implements EmailVerificationNotificationSentResponseContract
 {
@@ -18,6 +18,6 @@ class EmailVerificationNotificationSentResponse implements EmailVerificationNoti
     {
         return $request->wantsJson()
                     ? new JsonResponse('', 202)
-                    : back()->with('status', Fortify::VERIFICATION_LINK_SENT);
+                    : back()->with('status', Cave::VERIFICATION_LINK_SENT);
     }
 }

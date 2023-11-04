@@ -3,7 +3,7 @@
 namespace Qruto\Cave\Actions;
 
 use Illuminate\Contracts\Auth\StatefulGuard;
-use Qruto\Cave\Fortify;
+use Qruto\Cave\Cave;
 
 class ConfirmPassword
 {
@@ -17,9 +17,9 @@ class ConfirmPassword
      */
     public function __invoke(StatefulGuard $guard, $user, ?string $password = null)
     {
-        $username = Fortify::username();
+        $username = Cave::username();
 
-        return is_null(Fortify::$confirmPasswordsUsingCallback) ? $guard->validate([
+        return is_null(Cave::$confirmPasswordsUsingCallback) ? $guard->validate([
             $username => $user->{$username},
             'password' => $password,
         ]) : $this->confirmPasswordUsingCustomCallback($user, $password);
@@ -35,7 +35,7 @@ class ConfirmPassword
     protected function confirmPasswordUsingCustomCallback($user, ?string $password = null)
     {
         return call_user_func(
-            Fortify::$confirmPasswordsUsingCallback,
+            Cave::$confirmPasswordsUsingCallback,
             $user,
             $password
         );

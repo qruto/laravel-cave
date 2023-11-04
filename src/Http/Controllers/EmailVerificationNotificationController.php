@@ -6,7 +6,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Qruto\Cave\Contracts\EmailVerificationNotificationSentResponse;
-use Qruto\Cave\Fortify;
+use Qruto\Cave\Cave;
 
 class EmailVerificationNotificationController extends Controller
 {
@@ -21,7 +21,7 @@ class EmailVerificationNotificationController extends Controller
         if ($request->user()->hasVerifiedEmail()) {
             return $request->wantsJson()
                         ? new JsonResponse('', 204)
-                        : redirect()->intended(Fortify::redirects('email-verification'));
+                        : redirect()->intended(Cave::redirects('email-verification'));
         }
 
         $request->user()->sendEmailVerificationNotification();

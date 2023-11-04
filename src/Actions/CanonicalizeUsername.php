@@ -3,7 +3,7 @@
 namespace Qruto\Cave\Actions;
 
 use Illuminate\Support\Str;
-use Qruto\Cave\Fortify;
+use Qruto\Cave\Cave;
 
 class CanonicalizeUsername
 {
@@ -17,7 +17,7 @@ class CanonicalizeUsername
     public function handle($request, $next)
     {
         $request->merge([
-            Fortify::username() => Str::lower($request->{Fortify::username()}),
+            Cave::username() => Str::lower($request->{Cave::username()}),
         ]);
 
         return $next($request);

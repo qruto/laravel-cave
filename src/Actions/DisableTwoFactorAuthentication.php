@@ -3,7 +3,7 @@
 namespace Qruto\Cave\Actions;
 
 use Qruto\Cave\Events\TwoFactorAuthenticationDisabled;
-use Qruto\Cave\Fortify;
+use Qruto\Cave\Cave;
 
 class DisableTwoFactorAuthentication
 {
@@ -21,7 +21,7 @@ class DisableTwoFactorAuthentication
             $user->forceFill([
                 'two_factor_secret' => null,
                 'two_factor_recovery_codes' => null,
-            ] + (Fortify::confirmsTwoFactorAuthentication() ? [
+            ] + (Cave::confirmsTwoFactorAuthentication() ? [
                 'two_factor_confirmed_at' => null,
             ] : []))->save();
 

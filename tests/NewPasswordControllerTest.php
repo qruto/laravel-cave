@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Password;
 use Qruto\Cave\Contracts\ResetPasswordViewResponse;
 use Qruto\Cave\Contracts\ResetsUserPasswords;
-use Qruto\Cave\Fortify;
+use Qruto\Cave\Cave;
 use Mockery;
 
 class NewPasswordControllerTest extends OrchestraTestCase
@@ -55,7 +55,7 @@ class NewPasswordControllerTest extends OrchestraTestCase
         ]);
 
         $response->assertStatus(302);
-        $response->assertRedirect(Fortify::redirects('password-reset', route('login')));
+        $response->assertRedirect(Cave::redirects('password-reset', route('login')));
     }
 
     public function test_password_reset_can_fail()
@@ -126,7 +126,7 @@ class NewPasswordControllerTest extends OrchestraTestCase
         ]);
 
         $response->assertStatus(302);
-        $response->assertRedirect(Fortify::redirects('password-reset', route('login')));
+        $response->assertRedirect(Cave::redirects('password-reset', route('login')));
     }
 
     public function test_password_is_required()

@@ -5,7 +5,7 @@ namespace Qruto\Cave\Actions;
 use Illuminate\Auth\Events\Failed;
 use Illuminate\Contracts\Auth\StatefulGuard;
 use Illuminate\Validation\ValidationException;
-use Qruto\Cave\Fortify;
+use Qruto\Cave\Cave;
 use Qruto\Cave\LoginRateLimiter;
 
 class AttemptToAuthenticate
@@ -46,12 +46,12 @@ class AttemptToAuthenticate
      */
     public function handle($request, $next)
     {
-        if (Fortify::$authenticateUsingCallback) {
+        if (Cave::$authenticateUsingCallback) {
             return $this->handleUsingCustomCallback($request, $next);
         }
 
         if ($this->guard->attempt(
-            $request->only(Fortify::username(), 'password'),
+            $request->only(Cave::username(), 'password'),
             $request->boolean('remember'))
         ) {
             return $next($request);
@@ -69,7 +69,7 @@ class AttemptToAuthenticate
      */
     protected function handleUsingCustomCallback($request, $next)
     {
-        $user = call_user_func(Fortify::$authenticateUsingCallback, $request);
+        $user = call_user_func(Cave::$authenticateUsingCallback, $request);
 
         if (! $user) {
             $this->fireFailedEvent($request);
@@ -95,7 +95,7 @@ class AttemptToAuthenticate
         $this->limiter->increment($request);
 
         throw ValidationException::withMessages([
-            Fortify::username() => [trans('auth.failed')],
+            Cave::username() => [trans('auth.failed')],
         ]);
     }
 
@@ -108,7 +108,7 @@ class AttemptToAuthenticate
     protected function fireFailedEvent($request)
     {
         event(new Failed(config('fortify.guard'), null, [
-            Fortify::username() => $request->{Fortify::username()},
+            Cave::username() => $request->{Cave::username()},
             'password' => $request->password,
         ]));
     }

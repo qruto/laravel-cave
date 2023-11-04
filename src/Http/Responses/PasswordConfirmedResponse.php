@@ -4,7 +4,7 @@ namespace Qruto\Cave\Http\Responses;
 
 use Illuminate\Http\JsonResponse;
 use Qruto\Cave\Contracts\PasswordConfirmedResponse as PasswordConfirmedResponseContract;
-use Qruto\Cave\Fortify;
+use Qruto\Cave\Cave;
 
 class PasswordConfirmedResponse implements PasswordConfirmedResponseContract
 {
@@ -18,6 +18,6 @@ class PasswordConfirmedResponse implements PasswordConfirmedResponseContract
     {
         return $request->wantsJson()
                     ? new JsonResponse('', 201)
-                    : redirect()->intended(Fortify::redirects('password-confirmation'));
+                    : redirect()->intended(Cave::redirects('password-confirmation'));
     }
 }

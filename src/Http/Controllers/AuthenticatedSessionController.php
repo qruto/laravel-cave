@@ -15,7 +15,7 @@ use Qruto\Cave\Contracts\LoginResponse;
 use Qruto\Cave\Contracts\LoginViewResponse;
 use Qruto\Cave\Contracts\LogoutResponse;
 use Qruto\Cave\Features;
-use Qruto\Cave\Fortify;
+use Qruto\Cave\Cave;
 use Qruto\Cave\Http\Requests\LoginRequest;
 
 class AuthenticatedSessionController extends Controller
@@ -70,9 +70,9 @@ class AuthenticatedSessionController extends Controller
      */
     protected function loginPipeline(LoginRequest $request)
     {
-        if (Fortify::$authenticateThroughCallback) {
+        if (Cave::$authenticateThroughCallback) {
             return (new Pipeline(app()))->send($request)->through(array_filter(
-                call_user_func(Fortify::$authenticateThroughCallback, $request)
+                call_user_func(Cave::$authenticateThroughCallback, $request)
             ));
         }
 

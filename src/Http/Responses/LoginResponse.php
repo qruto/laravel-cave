@@ -3,7 +3,7 @@
 namespace Qruto\Cave\Http\Responses;
 
 use Qruto\Cave\Contracts\LoginResponse as LoginResponseContract;
-use Qruto\Cave\Fortify;
+use Qruto\Cave\Cave;
 
 class LoginResponse implements LoginResponseContract
 {
@@ -17,6 +17,6 @@ class LoginResponse implements LoginResponseContract
     {
         return $request->wantsJson()
                     ? response()->json(['two_factor' => false])
-                    : redirect()->intended(Fortify::redirects('login'));
+                    : redirect()->intended(Cave::redirects('login'));
     }
 }

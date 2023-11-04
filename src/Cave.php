@@ -15,7 +15,7 @@ use Qruto\Cave\Contracts\UpdatesUserProfileInformation;
 use Qruto\Cave\Contracts\VerifyEmailViewResponse;
 use Qruto\Cave\Http\Responses\SimpleViewResponse;
 
-class Fortify
+class Cave
 {
     /**
      * The callback that is responsible for building the authentication pipeline array, if applicable.
@@ -60,7 +60,7 @@ class Fortify
      */
     public static function username()
     {
-        return config('fortify.username', 'email');
+        return config('cave.username', 'email');
     }
 
     /**
@@ -70,7 +70,7 @@ class Fortify
      */
     public static function email()
     {
-        return config('fortify.email', 'email');
+        return config('cave.email', 'email');
     }
 
     /**

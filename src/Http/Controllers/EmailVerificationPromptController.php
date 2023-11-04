@@ -5,7 +5,7 @@ namespace Qruto\Cave\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Qruto\Cave\Contracts\VerifyEmailViewResponse;
-use Qruto\Cave\Fortify;
+use Qruto\Cave\Cave;
 
 class EmailVerificationPromptController extends Controller
 {
@@ -18,7 +18,7 @@ class EmailVerificationPromptController extends Controller
     public function __invoke(Request $request)
     {
         return $request->user()->hasVerifiedEmail()
-                    ? redirect()->intended(Fortify::redirects('email-verification'))
+                    ? redirect()->intended(Cave::redirects('email-verification'))
                     : app(VerifyEmailViewResponse::class);
     }
 }

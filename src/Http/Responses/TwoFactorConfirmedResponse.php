@@ -4,7 +4,7 @@ namespace Qruto\Cave\Http\Responses;
 
 use Illuminate\Http\JsonResponse;
 use Qruto\Cave\Contracts\TwoFactorConfirmedResponse as TwoFactorConfirmedResponseContract;
-use Qruto\Cave\Fortify;
+use Qruto\Cave\Cave;
 
 class TwoFactorConfirmedResponse implements TwoFactorConfirmedResponseContract
 {
@@ -18,6 +18,6 @@ class TwoFactorConfirmedResponse implements TwoFactorConfirmedResponseContract
     {
         return $request->wantsJson()
                     ? new JsonResponse('', 200)
-                    : back()->with('status', Fortify::TWO_FACTOR_AUTHENTICATION_CONFIRMED);
+                    : back()->with('status', Cave::TWO_FACTOR_AUTHENTICATION_CONFIRMED);
     }
 }
