@@ -5,8 +5,13 @@ parameters:
     - routes
     - src
 
-  level: 0
+  level: 4
+  paths:
+      - src
+      - config
+      - database
+  tmpDir: build/phpstan
+  checkOctaneCompatibility: true
+  checkModelProperties: true
+  checkMissingIterableValueType: false
 
-  ignoreErrors:
-    - "#Unsafe usage of new static\\(\\)#"
-    - "#\\(void\\) is used.#"

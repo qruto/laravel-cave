@@ -1,7 +1,12 @@
 {
     "name": "qruto/laravel-cave",
     "description": "Backend controllers and scaffolding for Laravel web authentication.",
-    "keywords": ["laravel", "auth", "webauthn"],
+    "keywords": [
+        "laravel",
+        "auth",
+        "webauthn"
+    ],
+    "homepage": "https://github.com/qruto/laravel-cave",
     "license": "MIT",
     "support": {
         "issues": "https://github.com/qruto/laravel-cave/issues",
@@ -17,7 +22,8 @@
         "php": "^8.2",
         "ext-json": "*",
         "illuminate/support": "^10.0",
-        "spatie/laravel-package-tools": "^1.16.1"
+        "spatie/laravel-package-tools": "^1.16.1",
+        "web-auth/webauthn-lib": "^4.7"
     },
     "require-dev": {
         "mockery/mockery": "^1.6.6",
@@ -42,9 +48,14 @@
         "psr-4": {
             "Qruto\\Cave\\Tests\\": "tests/",
             "App\\": "workbench/app/",
-            "Database\\Factories\\": "workbench/database/factories/"
+            "Database\\Factories\\": "workbench/database/factories/",
+            "Workbench\\App\\": "workbench/app/",
+            "Workbench\\Database\\Factories\\": "workbench/database/factories/",
+            "Workbench\\Database\\Seeders\\": "workbench/database/seeders/"
         },
-        "classmap": ["stubs/"]
+        "classmap": [
+            "stubs/"
+        ]
     },
     "extra": {
         "laravel": {
@@ -63,9 +74,30 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "scripts": {
-        "post-autoload-dump": "@prepare",
+        "post-autoload-dump": [
+            "@clear",
+            "@prepare"
+        ],
         "prepare": "@php vendor/bin/testbench package:discover --ansi",
         "lint": "@php vendor/bin/phpstan analyse",
-        "test": "@php vendor/bin/phpunit"
+        "clear": "@php vendor/bin/testbench package:purge-skeleton --ansi",
+        "serve": [
+            "Composer\\Config::disableProcessTimeout",
+            "@build",
+            "@php vendor/bin/testbench serve"
+        ],
+        "build": [
+            "@composer run prepare",
+            "@php vendor/bin/testbench workbench:build --ansi"
+        ],
+        "start": [
+            "Composer\\Config::disableProcessTimeout",
+            "@composer run build",
+            "@php vendor/bin/testbench serve"
+        ],
+        "analyse": "vendor/bin/phpstan analyse",
+        "test": "vendor/bin/pest",
+        "test-coverage": "vendor/bin/pest --coverage",
+        "format": "vendor/bin/pint"
     }
 }
