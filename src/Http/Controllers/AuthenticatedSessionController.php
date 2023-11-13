@@ -12,11 +12,11 @@ use Qruto\Cave\Actions\EnsureLoginIsNotThrottled;
 use Qruto\Cave\Actions\PrepareAuthenticatedSession;
 use Qruto\Cave\Actions\RedirectIfTwoFactorAuthenticatable;
 use Qruto\Cave\Contracts\LoginResponse;
-use Qruto\Cave\Contracts\LoginViewResponse;
+use Qruto\Cave\Contracts\AuthViewResponse;
 use Qruto\Cave\Contracts\LogoutResponse;
 use Qruto\Cave\Features;
 use Qruto\Cave\Cave;
-use Qruto\Cave\Http\Requests\LoginRequest;
+use Qruto\Cave\Http\Requests\AuthOptionsRequest;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -39,23 +39,20 @@ class AuthenticatedSessionController extends Controller
     }
 
     /**
-     * Show the login view.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Qruto\Cave\Contracts\LoginViewResponse
+     * Show the auth view.
      */
-    public function create(Request $request): LoginViewResponse
+    public function create(Request $request): AuthViewResponse
     {
-        return app(LoginViewResponse::class);
+        return app(AuthViewResponse::class);
     }
 
     /**
      * Attempt to authenticate a new session.
      *
-     * @param  \Qruto\Cave\Http\Requests\LoginRequest  $request
+     * @param  \Qruto\Cave\Http\Requests\AuthOptionsRequest  $request
      * @return mixed
      */
-    public function store(LoginRequest $request)
+    public function store(AuthOptionsRequest $request)
     {
         return $this->loginPipeline($request)->then(function ($request) {
             return app(LoginResponse::class);
@@ -65,10 +62,10 @@ class AuthenticatedSessionController extends Controller
     /**
      * Get the authentication pipeline instance.
      *
-     * @param  \Qruto\Cave\Http\Requests\LoginRequest  $request
+     * @param  \Qruto\Cave\Http\Requests\AuthOptionsRequest  $request
      * @return \Illuminate\Pipeline\Pipeline
      */
-    protected function loginPipeline(LoginRequest $request)
+    protected function loginPipeline(AuthOptionsRequest $request)
     {
         if (Cave::$authenticateThroughCallback) {
             return (new Pipeline(app()))->send($request)->through(array_filter(
