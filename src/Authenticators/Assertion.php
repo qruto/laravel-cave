@@ -3,7 +3,7 @@
 namespace App\Auth\Authenticator;
 
 use App\Auth\Challenge;
-use App\Auth\Models\AuthKey;
+use App\Auth\Models\Passkey;
 use Illuminate\Contracts\Auth\Authenticatable;
 use ParagonIE\ConstantTime\Base64UrlSafe;
 use Webauthn\AuthenticationExtensions\AuthenticationExtensionsClientInputs;
@@ -61,7 +61,7 @@ class Assertion
     {
         $credentialId = $publicKeyCredential->rawId;
 
-        return AuthKey::where(fn ($query) => $query->where('credential_id', Base64UrlSafe::encode($credentialId))
+        return Passkey::where(fn ($query) => $query->where('credential_id', Base64UrlSafe::encode($credentialId))
             ->orWhere('credential_id', Base64UrlSafe::encodeUnpadded($credentialId))
         )
             ->firstOrFail()

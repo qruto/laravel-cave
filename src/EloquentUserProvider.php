@@ -4,7 +4,7 @@ namespace App\Auth;
 
 use App\Auth\Authenticator\Assertion;
 use App\Auth\Controllers\AuthController;
-use App\Auth\Models\AuthKey;
+use App\Auth\Models\Passkey;
 use Illuminate\Auth\EloquentUserProvider as BaseEloquentUserProvider;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Hashing\Hasher;
@@ -28,7 +28,7 @@ class EloquentUserProvider extends BaseEloquentUserProvider
             return null;
         }
 
-        $webauthnKey = AuthKey::where('credential_id', Base64UrlSafe::encode(Base64::decode($credentials['id'])))
+        $webauthnKey = Passkey::where('credential_id', Base64UrlSafe::encode(Base64::decode($credentials['id'])))
             ->orWhere('credential_id', Base64UrlSafe::encodeUnpadded(Base64::decode($credentials['id'])))
             ->first();
 
