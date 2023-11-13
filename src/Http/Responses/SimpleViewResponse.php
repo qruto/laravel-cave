@@ -4,7 +4,7 @@ namespace Qruto\Cave\Http\Responses;
 
 use Illuminate\Contracts\Support\Responsable;
 use Qruto\Cave\Contracts\ConfirmPasswordViewResponse;
-use Qruto\Cave\Contracts\LoginViewResponse;
+use Qruto\Cave\Contracts\AuthViewResponse;
 use Qruto\Cave\Contracts\RegisterViewResponse;
 use Qruto\Cave\Contracts\RequestPasswordResetLinkViewResponse;
 use Qruto\Cave\Contracts\ResetPasswordViewResponse;
@@ -12,7 +12,7 @@ use Qruto\Cave\Contracts\TwoFactorChallengeViewResponse;
 use Qruto\Cave\Contracts\VerifyEmailViewResponse;
 
 class SimpleViewResponse implements
-    LoginViewResponse,
+    AuthViewResponse,
     ResetPasswordViewResponse,
     RegisterViewResponse,
     RequestPasswordResetLinkViewResponse,

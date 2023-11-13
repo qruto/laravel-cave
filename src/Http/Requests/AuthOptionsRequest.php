@@ -5,7 +5,7 @@ namespace Qruto\Cave\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Qruto\Cave\Cave;
 
-class LoginRequest extends FormRequest
+class AuthOptionsRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,8 +25,7 @@ class LoginRequest extends FormRequest
     public function rules()
     {
         return [
-            Cave::username() => 'required|string',
-            'password' => 'required|string',
+            Cave::username() => 'nullable|string',
         ];
     }
 }

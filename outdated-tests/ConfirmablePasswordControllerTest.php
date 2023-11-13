@@ -1,13 +1,12 @@
 <?php
 
-namespace Qruto\Cave\Tests;
 
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Qruto\Cave\Contracts\ConfirmPasswordViewResponse;
 use Qruto\Cave\Cave;
+use Qruto\Cave\Contracts\ConfirmPasswordViewResponse;
 
-class ConfirmablePasswordControllerTest extends OrchestraTestCase
+class ConfirmablePasswordControllerTest extends TestCase
 {
     use RefreshDatabase;
 
