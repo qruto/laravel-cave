@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('auth_keys', function (Blueprint $table) {
+        Schema::create('passkeys', function (Blueprint $table) {
             $table->id();
             $table->foreignUlid('user_id')->constrained('users');
             $table->string('name')->nullable();
