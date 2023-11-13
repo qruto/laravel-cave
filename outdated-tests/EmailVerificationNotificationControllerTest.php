@@ -1,11 +1,10 @@
 <?php
 
-namespace Qruto\Cave\Tests;
 
 use Illuminate\Contracts\Auth\Authenticatable;
-use Mockery;
+use Qruto\Cave\Tests\TestCase;
 
-class EmailVerificationNotificationControllerTest extends OrchestraTestCase
+class EmailVerificationNotificationControllerTest extends TestCase
 {
     public function test_email_verification_notification_can_be_sent()
     {

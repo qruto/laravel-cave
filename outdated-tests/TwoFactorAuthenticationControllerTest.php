@@ -1,17 +1,17 @@
 <?php
 
-namespace Qruto\Cave\Tests;
 
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
+use PragmaRX\Google2FA\Google2FA;
 use Qruto\Cave\Events\TwoFactorAuthenticationConfirmed;
 use Qruto\Cave\Events\TwoFactorAuthenticationDisabled;
 use Qruto\Cave\Events\TwoFactorAuthenticationEnabled;
+use Qruto\Cave\Tests\TestCase;
 use Qruto\Cave\TwoFactorAuthenticatable;
-use PragmaRX\Google2FA\Google2FA;
 
-class TwoFactorAuthenticationControllerTest extends OrchestraTestCase
+class TwoFactorAuthenticationControllerTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -19,7 +19,7 @@ class TwoFactorAuthenticationControllerTest extends OrchestraTestCase
     {
         Event::fake();
 
-        $user = TestTwoFactorAuthenticationUser::forceCreate([
+        $user = \Qruto\Cave\Tests\TestTwoFactorAuthenticationUser::forceCreate([
             'name' => 'Taylor Otwell',
             'email' => 'taylor@laravel.com',
             'password' => bcrypt('secret'),
@@ -46,7 +46,7 @@ class TwoFactorAuthenticationControllerTest extends OrchestraTestCase
     {
         Event::fake();
 
-        $user = TestTwoFactorAuthenticationUser::forceCreate([
+        $user = \Qruto\Cave\Tests\TestTwoFactorAuthenticationUser::forceCreate([
             'name' => 'Taylor Otwell',
             'email' => 'taylor@laravel.com',
             'password' => bcrypt('secret'),
@@ -73,7 +73,7 @@ class TwoFactorAuthenticationControllerTest extends OrchestraTestCase
         $userSecret = $tfaEngine->generateSecretKey();
         $validOtp = $tfaEngine->getCurrentOtp($userSecret);
 
-        $user = TestTwoFactorAuthenticationUser::forceCreate([
+        $user = \Qruto\Cave\Tests\TestTwoFactorAuthenticationUser::forceCreate([
             'name' => 'Taylor Otwell',
             'email' => 'taylor@laravel.com',
             'password' => bcrypt('secret'),
@@ -110,7 +110,7 @@ class TwoFactorAuthenticationControllerTest extends OrchestraTestCase
         $tfaEngine = app(Google2FA::class);
         $userSecret = $tfaEngine->generateSecretKey();
 
-        $user = TestTwoFactorAuthenticationUser::forceCreate([
+        $user = \Qruto\Cave\Tests\TestTwoFactorAuthenticationUser::forceCreate([
             'name' => 'Taylor Otwell',
             'email' => 'taylor@laravel.com',
             'password' => bcrypt('secret'),
@@ -135,7 +135,7 @@ class TwoFactorAuthenticationControllerTest extends OrchestraTestCase
     {
         Event::fake();
 
-        $user = TestTwoFactorAuthenticationUser::forceCreate([
+        $user = \Qruto\Cave\Tests\TestTwoFactorAuthenticationUser::forceCreate([
             'name' => 'Taylor Otwell',
             'email' => 'taylor@laravel.com',
             'password' => bcrypt('secret'),

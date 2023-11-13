@@ -1,12 +1,11 @@
 <?php
 
-namespace Qruto\Cave\Tests;
 
 use Illuminate\Contracts\Auth\Authenticatable;
 use Qruto\Cave\Contracts\UpdatesUserProfileInformation;
-use Mockery;
+use Qruto\Cave\Tests\TestCase;
 
-class ProfileInformationControllerTest extends OrchestraTestCase
+class ProfileInformationControllerTest extends TestCase
 {
     public function test_contact_information_can_be_updated()
     {

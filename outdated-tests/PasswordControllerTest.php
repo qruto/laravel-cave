@@ -1,14 +1,14 @@
 <?php
 
-namespace Qruto\Cave\Tests;
 
 use App\Actions\Fortify\UpdateUserPassword;
 use Database\Factories\UserFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Validation\ValidationException;
 use Qruto\Cave\Contracts\UpdatesUserPasswords;
+use Qruto\Cave\Tests\TestCase;
 
-class PasswordControllerTest extends OrchestraTestCase
+class PasswordControllerTest extends TestCase
 {
     use RefreshDatabase;
 

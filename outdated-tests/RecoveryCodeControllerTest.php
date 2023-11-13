@@ -1,13 +1,12 @@
 <?php
 
-namespace Qruto\Cave\Tests;
 
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use Qruto\Cave\Events\RecoveryCodesGenerated;
 
-class RecoveryCodeControllerTest extends OrchestraTestCase
+class RecoveryCodeControllerTest extends TestCase
 {
     use RefreshDatabase;
 

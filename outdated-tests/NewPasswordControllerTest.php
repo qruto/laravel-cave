@@ -1,18 +1,17 @@
 <?php
 
-namespace Qruto\Cave\Tests;
 
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\PasswordBroker;
 use Illuminate\Contracts\Auth\StatefulGuard;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Password;
+use Qruto\Cave\Cave;
 use Qruto\Cave\Contracts\ResetPasswordViewResponse;
 use Qruto\Cave\Contracts\ResetsUserPasswords;
-use Qruto\Cave\Cave;
-use Mockery;
+use Qruto\Cave\Tests\TestCase;
 
-class NewPasswordControllerTest extends OrchestraTestCase
+class NewPasswordControllerTest extends TestCase
 {
     public function test_the_new_password_view_is_returned()
     {

@@ -1,11 +1,11 @@
 <?php
 
-namespace Qruto\Cave\Tests;
 
 use Illuminate\Support\Str;
 use Qruto\Cave\Rules\Password;
+use Qruto\Cave\Tests\TestCase;
 
-class PasswordRuleTest extends OrchestraTestCase
+class PasswordRuleTest extends TestCase
 {
     public function test_password_rule()
     {

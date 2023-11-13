@@ -1,14 +1,13 @@
 <?php
 
-namespace Qruto\Cave\Tests;
 
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\StatefulGuard;
 use Qruto\Cave\Contracts\CreatesNewUsers;
 use Qruto\Cave\Contracts\RegisterViewResponse;
-use Mockery;
+use Qruto\Cave\Tests\TestCase;
 
-class RegisteredUserControllerTest extends OrchestraTestCase
+class RegisteredUserControllerTest extends TestCase
 {
     public function test_the_register_view_is_returned()
     {

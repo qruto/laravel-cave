@@ -1,12 +1,11 @@
 <?php
 
-namespace Qruto\Cave\Tests;
 
 use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Http\JsonResponse;
 use Qruto\Cave\Cave;
 
-class FortifyServiceProviderTest extends OrchestraTestCase
+class FortifyServiceProviderTest extends TestCase
 {
     public function test_views_can_be_customized()
     {

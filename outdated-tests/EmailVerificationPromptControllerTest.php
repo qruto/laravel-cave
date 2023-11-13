@@ -1,12 +1,11 @@
 <?php
 
-namespace Qruto\Cave\Tests;
 
 use Illuminate\Contracts\Auth\Authenticatable;
 use Qruto\Cave\Contracts\VerifyEmailViewResponse;
-use Mockery;
+use Qruto\Cave\Tests\TestCase;
 
-class EmailVerificationPromptControllerTest extends OrchestraTestCase
+class EmailVerificationPromptControllerTest extends TestCase
 {
     public function test_the_email_verification_prompt_view_is_returned()
     {

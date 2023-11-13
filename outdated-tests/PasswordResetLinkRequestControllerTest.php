@@ -1,14 +1,13 @@
 <?php
 
-namespace Qruto\Cave\Tests;
 
 use Illuminate\Contracts\Auth\PasswordBroker;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Password;
 use Qruto\Cave\Contracts\RequestPasswordResetLinkViewResponse;
-use Mockery;
+use Qruto\Cave\Tests\TestCase;
 
-class PasswordResetLinkRequestControllerTest extends OrchestraTestCase
+class PasswordResetLinkRequestControllerTest extends TestCase
 {
     public function test_the_reset_link_request_view_is_returned()
     {
