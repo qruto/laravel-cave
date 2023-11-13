@@ -4,7 +4,7 @@ namespace Qruto\Cave;
 
 use Qruto\Cave\Contracts\ConfirmPasswordViewResponse;
 use Qruto\Cave\Contracts\CreatesNewUsers;
-use Qruto\Cave\Contracts\LoginViewResponse;
+use Qruto\Cave\Contracts\AuthViewResponse;
 use Qruto\Cave\Contracts\RegisterViewResponse;
 use Qruto\Cave\Contracts\RequestPasswordResetLinkViewResponse;
 use Qruto\Cave\Contracts\ResetPasswordViewResponse;
@@ -104,10 +104,8 @@ class Cave
     public static function viewPrefix(string $prefix)
     {
         static::loginView($prefix.'login');
-        static::twoFactorChallengeView($prefix.'two-factor-challenge');
         static::registerView($prefix.'register');
         static::requestPasswordResetLinkView($prefix.'forgot-password');
-        static::resetPasswordView($prefix.'reset-password');
         static::verifyEmailView($prefix.'verify-email');
         static::confirmPasswordView($prefix.'confirm-password');
     }
@@ -120,33 +118,7 @@ class Cave
      */
     public static function loginView($view)
     {
-        app()->singleton(LoginViewResponse::class, function () use ($view) {
-            return new SimpleViewResponse($view);
-        });
-    }
-
-    /**
-     * Specify which view should be used as the two factor authentication challenge view.
-     *
-     * @param  callable|string  $view
-     * @return void
-     */
-    public static function twoFactorChallengeView($view)
-    {
-        app()->singleton(TwoFactorChallengeViewResponse::class, function () use ($view) {
-            return new SimpleViewResponse($view);
-        });
-    }
-
-    /**
-     * Specify which view should be used as the new password view.
-     *
-     * @param  callable|string  $view
-     * @return void
-     */
-    public static function resetPasswordView($view)
-    {
-        app()->singleton(ResetPasswordViewResponse::class, function () use ($view) {
+        app()->singleton(AuthViewResponse::class, function () use ($view) {
             return new SimpleViewResponse($view);
         });
     }

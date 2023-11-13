@@ -2,6 +2,8 @@
 
 namespace Qruto\Cave;
 
+use App\Auth\Authenticator\Assertion;
+use App\Auth\EloquentUserProvider;
 use Cose\Algorithm\Manager;
 use Cose\Algorithm\Signature\ECDSA\ES256;
 use Cose\Algorithm\Signature\ECDSA\ES256K;
@@ -17,6 +19,7 @@ use Cose\Algorithm\Signature\RSA\RS384;
 use Cose\Algorithm\Signature\RSA\RS512;
 use Illuminate\Contracts\Auth\StatefulGuard;
 use Illuminate\Contracts\Cache\Repository;
+use Illuminate\Contracts\Hashing\Hasher;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -81,7 +84,9 @@ class CaveServiceProvider extends PackageServiceProvider
     {
         $package->name('cave')
             ->hasConfigFile()
-            ->hasMigration('create_auth_keys_table');
+            ->hasRoute('web')
+            ->hasMigration('create_passkeys_table')
+            ->hasMigration('add_passkey_verified_at_column_to_users_table');
     }
 
     /**
@@ -204,30 +209,10 @@ class CaveServiceProvider extends PackageServiceProvider
             ], 'cave-support');
         }
 
-        $this->configureRoutes();
-    }
-
-    /**
-     * Configure the publishable resources offered by the package.
-     *
-     * @return void
-     */
-
-    /**
-     * Configure the routes offered by the application.
-     *
-     * @return void
-     */
-    protected function configureRoutes()
-    {
-        if (Cave::$registersRoutes) {
-            Route::group([
-                'namespace' => 'Qruto\Cave\Http\Controllers',
-                'domain' => config('cave.domain', null),
-                'prefix' => config('cave.prefix'),
-            ], function () {
-                $this->loadRoutesFrom(__DIR__.'/../routes/routes.php');
-            });
-        }
+        $this->app['auth']->provider('eloquent', fn ($app, array $config) => new EloquentUserProvider(
+            $app[Assertion::class],
+            $app[Hasher::class],
+            $config['model'],
+        ));
     }
 }
