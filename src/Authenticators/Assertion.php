@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Auth\Authenticator;
+namespace Qruto\Cave\Authenticators;
 
-use App\Auth\Challenge;
-use App\Auth\Models\Passkey;
+use Qruto\Cave\Challenge;
+use Qruto\Cave\Models\Passkey;
 use Illuminate\Contracts\Auth\Authenticatable;
 use ParagonIE\ConstantTime\Base64UrlSafe;
 use Webauthn\AuthenticationExtensions\AuthenticationExtensionsClientInputs;

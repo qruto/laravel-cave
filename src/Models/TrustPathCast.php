@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Auth\Models;
+namespace Qruto\Cave\Models;
 
 use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 use Illuminate\Database\Eloquent\Model;

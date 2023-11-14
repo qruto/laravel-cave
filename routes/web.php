@@ -43,7 +43,7 @@ if (Cave::$registersRoutes) {
             $twoFactorLimiter = config('cave.limiters.two-factor');
             $verificationLimiter = config('cave.limiters.verification', '6,1');
 
-            Route::get(RoutePath::for('auth', '/auth').'/options', [AuthenticatedSessionOptionsController::class, 'create'])
+            Route::post(RoutePath::for('auth', '/auth').'/options', [AuthenticatedSessionOptionsController::class, 'store'])
                 ->middleware(array_filter([
                     'guest:'.config('cave.guard'),
                     $limiter ? 'throttle:'.$limiter : null,

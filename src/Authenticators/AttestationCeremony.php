@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Auth\Authenticator;
+namespace Qruto\Cave\Authenticators;
 
 use Illuminate\Contracts\Auth\Authenticatable;
 use Webauthn\PublicKeyCredentialCreationOptions;

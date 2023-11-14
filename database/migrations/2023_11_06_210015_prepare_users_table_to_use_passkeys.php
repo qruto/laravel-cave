@@ -15,6 +15,7 @@ return new class extends Migration
             $table->timestamp('passkey_verified_at')
                 ->after('email_verified_at')
                 ->nullable();
+            $table->dropColumn('password');
         });
     }
 
@@ -25,6 +26,7 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->dropColumn('passkey_verified_at');
+            $table->string('password');
         });
     }
 };

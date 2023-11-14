@@ -2,8 +2,6 @@
 
 namespace Qruto\Cave;
 
-use App\Auth\Authenticator\Assertion;
-use App\Auth\EloquentUserProvider;
 use Cose\Algorithm\Manager;
 use Cose\Algorithm\Signature\ECDSA\ES256;
 use Cose\Algorithm\Signature\ECDSA\ES256K;
@@ -24,6 +22,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
+use Qruto\Cave\Authenticators\Assertion;
 use Qruto\Cave\Contracts\EmailVerificationNotificationSentResponse as EmailVerificationNotificationSentResponseContract;
 use Qruto\Cave\Contracts\FailedPasswordConfirmationResponse as FailedPasswordConfirmationResponseContract;
 use Qruto\Cave\Contracts\FailedPasswordResetLinkRequestResponse as FailedPasswordResetLinkRequestResponseContract;
@@ -65,6 +64,7 @@ use Qruto\Cave\Http\Responses\TwoFactorDisabledResponse;
 use Qruto\Cave\Http\Responses\TwoFactorEnabledResponse;
 use Qruto\Cave\Http\Responses\TwoFactorLoginResponse;
 use Qruto\Cave\Http\Responses\VerifyEmailResponse;
+use Spatie\LaravelPackageTools\Commands\InstallCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 use Webauthn\AttestationStatement\AttestationObjectLoader;
@@ -86,7 +86,15 @@ class CaveServiceProvider extends PackageServiceProvider
             ->hasConfigFile()
             ->hasRoute('web')
             ->hasMigration('create_passkeys_table')
-            ->hasMigration('add_passkey_verified_at_column_to_users_table');
+            ->hasMigration('prepare_users_table_to_use_passkeys')
+            ->hasInstallCommand(function(InstallCommand $command) {
+                $command
+                    ->publishConfigFile()
+                    ->publishAssets()
+                    ->publishMigrations()
+                    ->copyAndRegisterServiceProviderInApp()
+                    ->askToStarRepoOnGitHub('qruto/laravel-cave');
+            });
     }
 
     /**
@@ -96,12 +104,14 @@ class CaveServiceProvider extends PackageServiceProvider
      */
     public function packageRegistered()
     {
+        $this->mergeConfigFrom(__DIR__.'/../config/cave-system.php', 'cave');
+
         $this->registerWebAuthnEntities();
 
         $this->registerResponseBindings();
 
         $this->app->bind(StatefulGuard::class, function () {
-            return Auth::guard(config('Cave.guard', null));
+            return Auth::guard(config('cave.guard', null));
         });
     }
 
@@ -123,7 +133,7 @@ class CaveServiceProvider extends PackageServiceProvider
             true,
         ));
 
-        $this->app->bind(AuthenticationExtensionsClientInputs::class, fn () => AuthenticationExtensionsClientInputs::createFromArray(config('webauthn.extensions'))
+        $this->app->bind(AuthenticationExtensionsClientInputs::class, fn () => AuthenticationExtensionsClientInputs::createFromArray(config('cave.extensions'))
         );
 
         $this->app->bind(AttestationStatementSupportManager::class, fn () => tap(new AttestationStatementSupportManager())->add(NoneAttestationStatementSupport::create()));
@@ -207,6 +217,7 @@ class CaveServiceProvider extends PackageServiceProvider
                 __DIR__.'/../stubs/UpdateUserProfileInformation.php' => app_path('Actions/Cave/UpdateUserProfileInformation.php'),
                 __DIR__.'/../stubs/UpdateUserPassword.php' => app_path('Actions/Cave/UpdateUserPassword.php'),
             ], 'cave-support');
+
         }
 
         $this->app['auth']->provider('eloquent', fn ($app, array $config) => new EloquentUserProvider(

@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Auth;
+namespace Qruto\Cave;
 
-use App\Auth\Authenticator\Assertion;
-use App\Auth\Controllers\AuthController;
-use App\Auth\Models\Passkey;
+use Qruto\Cave\Authenticators\Assertion;
+use Qruto\Cave\Controllers\AuthController;
+use Qruto\Cave\Models\Passkey;
 use Illuminate\Auth\EloquentUserProvider as BaseEloquentUserProvider;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Hashing\Hasher;

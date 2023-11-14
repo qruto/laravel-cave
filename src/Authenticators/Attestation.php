@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Auth\Authenticator;
+namespace Qruto\Cave\Authenticators;
 
-use App\Auth\Challenge;
+use Qruto\Cave\Challenge;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Webauthn\AuthenticationExtensions\AuthenticationExtensionsClientInputs;
 use Webauthn\AuthenticatorAttestationResponse;

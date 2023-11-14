@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Auth\Models;
+namespace Qruto\Cave\Models;
 
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
