@@ -32,8 +32,8 @@ class Assertion
             new Challenge(),
             $this->rpEntity->id,
             $user ? $user->passkeys->map->publicKeyCredentialSource()->map->getPublicKeyCredentialDescriptor()->toArray() : [],
-            PublicKeyCredentialRequestOptions::USER_VERIFICATION_REQUIREMENT_REQUIRED,
-            config('webauthn.timeout'),
+            config('cave.user_verification', 'preferred'),
+            config('cave.timeout'),
             $this->extensions
         );
     }

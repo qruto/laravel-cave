@@ -128,7 +128,7 @@ class CaveServiceProvider extends PackageServiceProvider
 
         $this->app->bind(AuthenticatorSelectionCriteria::class, fn () => new AuthenticatorSelectionCriteria(
             AuthenticatorSelectionCriteria::AUTHENTICATOR_ATTACHMENT_NO_PREFERENCE,
-            AuthenticatorSelectionCriteria::USER_VERIFICATION_REQUIREMENT_REQUIRED,
+            config('cave.user_verification', 'preferred'),
             AuthenticatorSelectionCriteria::RESIDENT_KEY_REQUIREMENT_REQUIRED,
             true,
         ));

@@ -173,6 +173,40 @@ return [
         Algorithms::COSE_ALGORITHM_ED512,
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | User presence and verification
+    |--------------------------------------------------------------------------
+    |
+    | Most authenticators and smartphones will ask the user to actively verify
+    | themselves for log in. Use "required" to always ask verify, "preferred"
+    | to ask when possible, and "discouraged" to just ask for user presence.
+    |
+    | See https://www.w3.org/TR/webauthn/#enum-userVerificationRequirement
+    |
+    | Supported: "required", "preferred", "discouraged".
+    |
+    */
+
+    'user_verification' => 'preferred',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Credentials Attachment.
+    |--------------------------------------------------------------------------
+    |
+    | Authentication can be tied to the current device (like when using Windows
+    | Hello or Touch ID) or a cross-platform device (like USB Key). When this
+    | is "null" the user will decide where to store his authentication info.
+    |
+    | See https://www.w3.org/TR/webauthn/#enum-attachment
+    |
+    | Supported: "null", "cross-platform", "platform".
+    |
+    */
+
+    'attachment_mode' => null,
+
     'extensions' => [
         //        'loc' => true,
         //        'txAuthSimple' => 'This is custom text',
@@ -181,5 +215,19 @@ return [
     ],
 
     'timeout' => 60000,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Webauthn Attestation Conveyance
+    |--------------------------------------------------------------------------
+    |
+    | This parameter specify the preference regarding the attestation conveyance
+    | during credential generation.
+    | See https://www.w3.org/TR/webauthn/#enum-attestation-convey
+    |
+    | Supported: "none", "indirect", "direct", "enterprise".
+    */
+
+    'attestation_conveyance' => 'none',
 
 ];

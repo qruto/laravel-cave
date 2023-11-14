@@ -2,8 +2,10 @@
 
 namespace Qruto\Cave\Authenticators;
 
+use Qruto\Cave\Authenticator\InvalidAuthenticatorResponseException;
+use Qruto\Cave\Cave;
 use Qruto\Cave\Challenge;
-use Illuminate\Contracts\Auth\Authenticatable;
+use Qruto\Cave\Contracts\WebAuthenticatable;
 use Webauthn\AuthenticationExtensions\AuthenticationExtensionsClientInputs;
 use Webauthn\AuthenticatorAttestationResponse;
 use Webauthn\AuthenticatorAttestationResponseValidator;
@@ -29,7 +31,7 @@ class Attestation implements AttestationCeremony
 
     private static function supportedParams(): array
     {
-        return collect(config('webauthn.public_key_credential_algorithms'))->map(
+        return collect(config('cave.public_key_credential_algorithms'))->map(
             fn ($algorithm) => PublicKeyCredentialParameters::create(
                 PublicKeyCredentialDescriptor::CREDENTIAL_TYPE_PUBLIC_KEY,
                 $algorithm
@@ -37,23 +39,23 @@ class Attestation implements AttestationCeremony
         )->toArray();
     }
 
-    public function newOptions(?Authenticatable $user): PublicKeyCredentialCreationOptions
+    public function newOptions(?WebAuthenticatable $user): PublicKeyCredentialCreationOptions
     {
         return PublicKeyCredentialCreationOptions::create(
             $this->rpEntity,
+            // TODO: abstract
             PublicKeyCredentialUserEntity::create(
-                // TODO: abstract
-                $user->email,
+                $user->{Cave::username()},
                 $user->getAuthIdentifier(),
-                $user->email,
+                $user->{Cave::username()},
                 // TODO: create icon
                 null,
             ),
             new Challenge(),
             self::supportedParams(),
             $this->selectionCriteria,
-            PublicKeyCredentialCreationOptions::ATTESTATION_CONVEYANCE_PREFERENCE_NONE,
-            timeout: config('webauthn.timeout'),
+            config('cave.attestation_conveyance'),
+            timeout: config('cave.timeout'),
             // TODO: implement
             //       excludeCredentials: [],
             extensions: $this->extensions,
