@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use Qruto\Cave\Models\User as Authenticatable;
 
 class User extends Authenticatable
 {

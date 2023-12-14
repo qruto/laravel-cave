@@ -2,7 +2,7 @@
 
 namespace Qruto\Cave\Contracts;
 
-use Illuminate\Foundation\Auth\User;
+use Qruto\Cave\Models\User;
 
 interface CreatesNewUsers
 {
