@@ -17,4 +17,15 @@ class UserFactory extends \Orchestra\Testbench\Factories\UserFactory
      * @var class-string<TModel>
      */
     protected $model = User::class;
+
+    public function definition(): array
+    {
+        $definition = parent::definition();
+
+        unset($definition['password']);
+
+        $definition['passkey_verified_at'] = now();
+
+        return $definition;
+    }
 }

@@ -42,7 +42,8 @@
     },
     "autoload": {
         "psr-4": {
-            "Qruto\\Cave\\": "src/"
+            "Qruto\\Cave\\": "src/",
+            "Qruto\\Cave\\Database\\Factories\\": "database/factories/"
         }
     },
     "autoload-dev": {

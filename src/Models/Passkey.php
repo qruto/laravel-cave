@@ -3,14 +3,18 @@
 namespace Qruto\Cave\Models;
 
 use App\Models\User;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Qruto\Cave\Database\Factories\PasskeyFactory;
 use Symfony\Component\Uid\Uuid;
 use Webauthn\PublicKeyCredentialDescriptor;
 use Webauthn\PublicKeyCredentialSource;
 
 class Passkey extends Model
 {
+    use HasFactory;
+
     /**
      * The attributes that aren't mass assignable.
      *
@@ -48,8 +52,10 @@ class Passkey extends Model
     /**
      * Get PublicKeyCredentialSource object from WebauthnKey attributes.
      */
-    public static function createFromSource(PublicKeyCredentialSource $source, User $user)
-    {
+    public static function createFromSource(
+        PublicKeyCredentialSource $source,
+        User $user
+    ) {
         $authKey = new self();
 
         $authKey->credential_id = $source->publicKeyCredentialId;
@@ -68,6 +74,16 @@ class Passkey extends Model
         return $authKey;
     }
 
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    protected static function newFactory(): PasskeyFactory
+    {
+        return PasskeyFactory::new();
+    }
+
     public function publicKeyCredentialSource(): PublicKeyCredentialSource
     {
         return new PublicKeyCredentialSource(
@@ -81,10 +97,5 @@ class Passkey extends Model
             $this->user_id,
             $this->counter
         );
-    }
-
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
     }
 }
