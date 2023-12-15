@@ -191,6 +191,22 @@ return [
     'user_verification' => 'preferred',
 
     /*
+     |--------------------------------------------------------------------------
+     | Resident Key
+     |--------------------------------------------------------------------------
+     |
+     | Resident key is a credential that is stored on the authenticator itself.
+     | This means that the credential is not sent to the server during
+     | authentication, and thus can't be phished or intercepted.
+     |
+     | See https://www.w3.org/TR/webauthn/#enum-residentKeyRequirement
+     |
+     | Supported: "required", "preferred", "discouraged". null for default which
+     | is "discouraged" for cross-platform devices and "preferred" for platform.
+     */
+    'resident_key' => null,
+
+    /*
     |--------------------------------------------------------------------------
     | Credentials Attachment.
     |--------------------------------------------------------------------------

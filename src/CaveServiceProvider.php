@@ -16,12 +16,8 @@ use Cose\Algorithm\Signature\RSA\RS256;
 use Cose\Algorithm\Signature\RSA\RS384;
 use Cose\Algorithm\Signature\RSA\RS512;
 use Illuminate\Contracts\Auth\StatefulGuard;
-use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Contracts\Hashing\Hasher;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Route;
-use Illuminate\Support\ServiceProvider;
 use Qruto\Cave\Authenticators\Assertion;
 use Qruto\Cave\Contracts\EmailVerificationNotificationSentResponse as EmailVerificationNotificationSentResponseContract;
 use Qruto\Cave\Contracts\FailedPasswordConfirmationResponse as FailedPasswordConfirmationResponseContract;
@@ -38,7 +34,6 @@ use Qruto\Cave\Contracts\ProfileInformationUpdatedResponse as ProfileInformation
 use Qruto\Cave\Contracts\RecoveryCodesGeneratedResponse as RecoveryCodesGeneratedResponseContract;
 use Qruto\Cave\Contracts\RegisterResponse as RegisterResponseContract;
 use Qruto\Cave\Contracts\SuccessfulPasswordResetLinkRequestResponse as SuccessfulPasswordResetLinkRequestResponseContract;
-use Qruto\Cave\Contracts\TwoFactorAuthenticationProvider as TwoFactorAuthenticationProviderContract;
 use Qruto\Cave\Contracts\TwoFactorConfirmedResponse as TwoFactorConfirmedResponseContract;
 use Qruto\Cave\Contracts\TwoFactorDisabledResponse as TwoFactorDisabledResponseContract;
 use Qruto\Cave\Contracts\TwoFactorEnabledResponse as TwoFactorEnabledResponseContract;
@@ -75,19 +70,20 @@ use Webauthn\AuthenticationExtensions\ExtensionOutputCheckerHandler;
 use Webauthn\AuthenticatorAssertionResponseValidator;
 use Webauthn\AuthenticatorAttestationResponseValidator;
 use Webauthn\AuthenticatorSelectionCriteria;
+use Webauthn\Exception\WebauthnException;
 use Webauthn\PublicKeyCredentialLoader;
 use Webauthn\PublicKeyCredentialRpEntity;
 
 class CaveServiceProvider extends PackageServiceProvider
 {
-    public function configurePackage(Package $package) : void
+    public function configurePackage(Package $package): void
     {
         $package->name('cave')
             ->hasConfigFile()
             ->hasRoute('web')
             ->hasMigration('create_passkeys_table')
             ->hasMigration('prepare_users_table_to_use_passkeys')
-            ->hasInstallCommand(function(InstallCommand $command) {
+            ->hasInstallCommand(function (InstallCommand $command) {
                 $command
                     ->publishConfigFile()
                     ->publishAssets()
@@ -126,12 +122,18 @@ class CaveServiceProvider extends PackageServiceProvider
             null,
         ));
 
-        $this->app->bind(AuthenticatorSelectionCriteria::class, fn () => new AuthenticatorSelectionCriteria(
-            AuthenticatorSelectionCriteria::AUTHENTICATOR_ATTACHMENT_NO_PREFERENCE,
-            config('cave.user_verification', 'preferred'),
-            AuthenticatorSelectionCriteria::RESIDENT_KEY_REQUIREMENT_REQUIRED,
-            true,
-        ));
+
+        $this->app->bind(AuthenticatorSelectionCriteria::class, function () {
+            if (config('cave.resident_key', 'discouraged') === 'required' && config('cave.user_verification', 'preferred') === 'discouraged') {
+                throw new WebauthnException('Resident key cannot be required if user verification is not');
+            }
+
+            return new AuthenticatorSelectionCriteria(
+                AuthenticatorSelectionCriteria::AUTHENTICATOR_ATTACHMENT_NO_PREFERENCE,
+                config('cave.user_verification', 'preferred'),
+                config('cave.resident_key', 'discouraged'),
+            );
+        });
 
         $this->app->bind(AuthenticationExtensionsClientInputs::class, fn () => AuthenticationExtensionsClientInputs::createFromArray(config('cave.extensions'))
         );
