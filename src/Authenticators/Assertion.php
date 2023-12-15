@@ -2,10 +2,11 @@
 
 namespace Qruto\Cave\Authenticators;
 
-use Qruto\Cave\Challenge;
-use Qruto\Cave\Models\Passkey;
 use Illuminate\Contracts\Auth\Authenticatable;
 use ParagonIE\ConstantTime\Base64UrlSafe;
+use Qruto\Cave\Authenticator\InvalidAuthenticatorResponseException;
+use Qruto\Cave\Challenge;
+use Qruto\Cave\Models\Passkey;
 use Webauthn\AuthenticationExtensions\AuthenticationExtensionsClientInputs;
 use Webauthn\AuthenticatorAssertionResponse;
 use Webauthn\AuthenticatorAssertionResponseValidator;
@@ -26,20 +27,27 @@ class Assertion
     ) {
     }
 
-    public function newOptions(Authenticatable $user = null): PublicKeyCredentialOptions
-    {
+    public function newOptions(Authenticatable $user = null
+    ): PublicKeyCredentialOptions {
         return PublicKeyCredentialRequestOptions::create(
             new Challenge(),
             $this->rpEntity->id,
-            $user ? $user->passkeys->map->publicKeyCredentialSource()->map->getPublicKeyCredentialDescriptor()->toArray() : [],
+            ($user && in_array(config('cave.resident_key', null),
+                ['discouraged', null]))
+                ? $user->passkeys->map
+                ->publicKeyCredentialSource()->map
+                ->getPublicKeyCredentialDescriptor()->toArray()
+                : [],
             config('cave.user_verification', 'preferred'),
             config('cave.timeout'),
             $this->extensions
         );
     }
 
-    public function verify(array $credential, PublicKeyCredentialRequestOptions $options): PublicKeyCredentialSource
-    {
+    public function verify(
+        array $credential,
+        PublicKeyCredentialRequestOptions $options
+    ): PublicKeyCredentialSource {
         $publicKeyCredential = $this->credentialLoader->loadArray($credential);
 
         $authenticatorAssertionResponse = $publicKeyCredential->response;
@@ -57,12 +65,15 @@ class Assertion
         );
     }
 
-    protected function getCredentialSource(PublicKeyCredential $publicKeyCredential)
-    {
+    protected function getCredentialSource(
+        PublicKeyCredential $publicKeyCredential
+    ) {
         $credentialId = $publicKeyCredential->rawId;
 
-        return Passkey::where(fn ($query) => $query->where('credential_id', Base64UrlSafe::encode($credentialId))
-            ->orWhere('credential_id', Base64UrlSafe::encodeUnpadded($credentialId))
+        return Passkey::where(fn ($query) => $query->where('credential_id',
+            Base64UrlSafe::encode($credentialId))
+            ->orWhere('credential_id',
+                Base64UrlSafe::encodeUnpadded($credentialId))
         )
             ->firstOrFail()
             ->publicKeyCredentialSource();

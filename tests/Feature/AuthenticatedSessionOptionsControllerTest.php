@@ -2,6 +2,8 @@
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use ParagonIE\ConstantTime\Base64UrlSafe;
+use Qruto\Cave\Challenge;
 use Qruto\Cave\Contracts\CreatesNewUsers;
 use Qruto\Cave\Models\User as AuthUser;
 use Webauthn\AuthenticatorSelectionCriteria;
@@ -46,6 +48,7 @@ it('generates options for the new user', function () {
             'name' => 'rick@unity.io',
             'displayName' => 'rick@unity.io',
         ],
+        // TODO: choose appropriate algorithms
         'pubKeyCredParams' => [
             ['type' => 'public-key', 'alg' => -7],
             ['type' => 'public-key', 'alg' => -46],
@@ -111,26 +114,44 @@ it('throws an error if resident key is required but user verification is not',
 it('generates assertion options with resident key', function () {
     config()->set('cave.resident_key', 'required');
 
-    //    Factory::guessFactoryNamesUsing(function (string $modelName) {
-    //        return 'Database\\Factories\\'.class_basename($modelName).'Factory';
-    //    });
+    $challenge = Challenge::fake();
 
     $user = User::factory()->hasPasskeys()->create();
 
-    ray($user);
-
     $this->post(
         'auth/options',
-        ['email' => 'rick@unity.io', 'name' => 'Rick Sanchez']
-    )->assertJson([
-        'authenticatorSelection' => [
-            'requireResidentKey' => true,
-            'residentKey' => 'required',
-            'userVerification' => 'preferred',
-        ],
+        ['email' => $user->email, 'name' => $user->name]
+    )->assertSimilarJson([
+        'challenge' => Base64UrlSafe::encodeUnpadded($challenge),
+        'rpId' => 'localhost',
+        'userVerification' => 'preferred',
+        'timeout' => 60000,
     ]);
 });
 
-todo('generates options with attestation');
+it('generates assertion options without resident key', function () {
+    config()->set('cave.resident_key', 'discouraged');
+
+    $challenge = Challenge::fake();
+
+    $user = User::factory()->hasPasskeys()->create();
+
+    $this->post(
+        'auth/options',
+        ['email' => $user->email, 'name' => $user->name]
+    )->assertSimilarJson([
+        'challenge' => Base64UrlSafe::encodeUnpadded($challenge),
+        'allowCredentials' => [
+            [
+                'id' => 'TVE',
+                'type' => 'public-key',
+            ],
+        ],
+        'rpId' => 'localhost',
+        'userVerification' => 'preferred',
+        'timeout' => 60000,
+    ]);
+});
+
 todo('generates options with pubKeyCredParams');
 todo('generates options with extensions');

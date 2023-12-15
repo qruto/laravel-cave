@@ -29,18 +29,8 @@ class Attestation implements AttestationCeremony
     ) {
     }
 
-    private static function supportedParams(): array
-    {
-        return collect(config('cave.public_key_credential_algorithms'))->map(
-            fn ($algorithm) => PublicKeyCredentialParameters::create(
-                PublicKeyCredentialDescriptor::CREDENTIAL_TYPE_PUBLIC_KEY,
-                $algorithm
-            )
-        )->toArray();
-    }
-
-    public function newOptions(?WebAuthenticatable $user): PublicKeyCredentialCreationOptions
-    {
+    public function newOptions(?WebAuthenticatable $user
+    ): PublicKeyCredentialCreationOptions {
         return PublicKeyCredentialCreationOptions::create(
             $this->rpEntity,
             // TODO: abstract
@@ -57,13 +47,25 @@ class Attestation implements AttestationCeremony
             config('cave.attestation_conveyance'),
             timeout: config('cave.timeout'),
             // TODO: implement
-            //       excludeCredentials: [],
+            // excludeCredentials: [],
             extensions: $this->extensions,
         );
     }
 
-    public function verify(array $credential, PublicKeyCredentialCreationOptions $options): PublicKeyCredentialSource
+    private static function supportedParams(): array
     {
+        return collect(config('cave.public_key_credential_algorithms'))->map(
+            fn ($algorithm) => PublicKeyCredentialParameters::create(
+                PublicKeyCredentialDescriptor::CREDENTIAL_TYPE_PUBLIC_KEY,
+                $algorithm
+            )
+        )->toArray();
+    }
+
+    public function verify(
+        array $credential,
+        PublicKeyCredentialCreationOptions $options
+    ): PublicKeyCredentialSource {
         $publicKeyCredential = $this->credentialLoader->load(json_encode($credential));
 
         $authenticatorAttestationResponse = $publicKeyCredential->response;

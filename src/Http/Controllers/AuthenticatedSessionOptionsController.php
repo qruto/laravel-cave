@@ -2,13 +2,11 @@
 
 namespace Qruto\Cave\Http\Controllers;
 
-use Qruto\Cave\Authenticators\Assertion;
-use Qruto\Cave\Authenticators\Attestation;
-use App\Models\Team;
-use Illuminate\Auth\Events\Registered;
 use Illuminate\Contracts\Auth\StatefulGuard;
 use Illuminate\Http\Response;
 use Illuminate\Support\Str;
+use Qruto\Cave\Authenticators\Assertion;
+use Qruto\Cave\Authenticators\Attestation;
 use Qruto\Cave\Cave;
 use Qruto\Cave\Contracts\CreatesNewUsers;
 use Qruto\Cave\Http\Requests\AuthOptionsRequest;
@@ -22,7 +20,6 @@ class AuthenticatedSessionOptionsController
     /**
      * Create a new controller instance.
      *
-     * @param  \Illuminate\Contracts\Auth\StatefulGuard  $guard
      * @return void
      */
     public function __construct(
@@ -68,7 +65,7 @@ class AuthenticatedSessionOptionsController
     {
         $this->creator->create($request->all(), $user);
 
-        if (!$user->exists) {
+        if (! $user->exists) {
             $user->save();
         }
 
