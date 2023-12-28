@@ -11,8 +11,8 @@ use Qruto\Cave\Actions\CanonicalizeUsername;
 use Qruto\Cave\Actions\EnsureLoginIsNotThrottled;
 use Qruto\Cave\Actions\PrepareAuthenticatedSession;
 use Qruto\Cave\Cave;
+use Qruto\Cave\Contracts\AuthResponse;
 use Qruto\Cave\Contracts\AuthViewResponse;
-use Qruto\Cave\Contracts\LoginResponse;
 use Qruto\Cave\Contracts\LogoutResponse;
 use Qruto\Cave\Http\Requests\AssertionRequest;
 use Qruto\Cave\Http\Requests\AttestationRequest;
@@ -51,8 +51,8 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(AttestationRequest $request)
     {
-        return $this->loginPipeline($request)->then(function ($request) {
-            return app(LoginResponse::class);
+        return $this->authPipeline($request)->then(function ($request) {
+            return app(AuthResponse::class);
         });
     }
 
@@ -61,7 +61,7 @@ class AuthenticatedSessionController extends Controller
      *
      * @return \Illuminate\Pipeline\Pipeline
      */
-    protected function loginPipeline(
+    protected function authPipeline(
         AttestationRequest|AssertionRequest $request
     ) {
         if (Cave::$authenticateThroughCallback) {
@@ -70,9 +70,9 @@ class AuthenticatedSessionController extends Controller
             ));
         }
 
-        if (is_array(config('fortify.pipelines.login'))) {
+        if (is_array(config('cave.pipelines.login'))) {
             return (new Pipeline(app()))->send($request)->through(array_filter(
-                config('fortify.pipelines.login')
+                config('cave.pipelines.login')
             ));
         }
 

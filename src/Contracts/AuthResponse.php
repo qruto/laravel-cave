@@ -4,7 +4,7 @@ namespace Qruto\Cave\Contracts;
 
 use Illuminate\Contracts\Support\Responsable;
 
-interface LoginResponse extends Responsable
+interface AuthResponse extends Responsable
 {
     //
 }

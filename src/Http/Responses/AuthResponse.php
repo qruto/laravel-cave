@@ -2,10 +2,10 @@
 
 namespace Qruto\Cave\Http\Responses;
 
-use Qruto\Cave\Contracts\LoginResponse as LoginResponseContract;
 use Qruto\Cave\Cave;
+use Qruto\Cave\Contracts\AuthResponse as AuthResponseContract;
 
-class LoginResponse implements LoginResponseContract
+class AuthResponse implements AuthResponseContract
 {
     /**
      * Create an HTTP response that represents the object.
@@ -16,7 +16,7 @@ class LoginResponse implements LoginResponseContract
     public function toResponse($request)
     {
         return $request->wantsJson()
-                    ? response()->json(['two_factor' => false])
-                    : redirect()->intended(Cave::redirects('login'));
+            ? response()->json(['two_factor' => false])
+            : redirect()->intended(Cave::redirects('login'));
     }
 }
