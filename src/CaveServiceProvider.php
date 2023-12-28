@@ -19,6 +19,9 @@ use Illuminate\Contracts\Auth\StatefulGuard;
 use Illuminate\Contracts\Hashing\Hasher;
 use Illuminate\Support\Facades\Auth;
 use Qruto\Cave\Authenticators\Assertion;
+use Qruto\Cave\Authenticators\AssertionCeremony;
+use Qruto\Cave\Authenticators\Attestation;
+use Qruto\Cave\Authenticators\AttestationCeremony;
 use Qruto\Cave\Contracts\EmailVerificationNotificationSentResponse as EmailVerificationNotificationSentResponseContract;
 use Qruto\Cave\Contracts\FailedPasswordConfirmationResponse as FailedPasswordConfirmationResponseContract;
 use Qruto\Cave\Contracts\FailedPasswordResetLinkRequestResponse as FailedPasswordResetLinkRequestResponseContract;
@@ -113,18 +116,23 @@ class CaveServiceProvider extends PackageServiceProvider
 
     protected function registerWebAuthnEntities()
     {
-        $this->app->instance('host', parse_url(config('app.url'), PHP_URL_HOST));
+        $this->app->instance(
+            'host',
+            parse_url(config('app.url'), PHP_URL_HOST)
+        );
 
-        $this->app->bind(PublicKeyCredentialRpEntity::class, fn () => new PublicKeyCredentialRpEntity(
-            config('app.name'),
-            $this->app['host'],
-            // TODO: Add icon
-            null,
-        ));
-
+        $this->app->bind(PublicKeyCredentialRpEntity::class,
+            fn () => new PublicKeyCredentialRpEntity(
+                config('app.name'),
+                $this->app['host'],
+                // TODO: Add icon
+                null,
+            ));
 
         $this->app->bind(AuthenticatorSelectionCriteria::class, function () {
-            if (config('cave.resident_key', 'discouraged') === 'required' && config('cave.user_verification', 'preferred') === 'discouraged') {
+            if (config('cave.resident_key',
+                'discouraged') === 'required' && config('cave.user_verification',
+                    'preferred') === 'discouraged') {
                 throw new WebauthnException('Resident key cannot be required if user verification is not');
             }
 
@@ -135,21 +143,25 @@ class CaveServiceProvider extends PackageServiceProvider
             );
         });
 
-        $this->app->bind(AuthenticationExtensionsClientInputs::class, fn () => AuthenticationExtensionsClientInputs::createFromArray(config('cave.extensions'))
+        $this->app->bind(AuthenticationExtensionsClientInputs::class, fn (
+        ) => AuthenticationExtensionsClientInputs::createFromArray(config('cave.extensions'))
         );
 
-        $this->app->bind(AttestationStatementSupportManager::class, fn () => tap(new AttestationStatementSupportManager())->add(NoneAttestationStatementSupport::create()));
+        $this->app->bind(AttestationStatementSupportManager::class, fn (
+        ) => tap(new AttestationStatementSupportManager())->add(NoneAttestationStatementSupport::create()));
 
-        $this->app->bind(PublicKeyCredentialLoader::class, fn () => new PublicKeyCredentialLoader(
-            new AttestationObjectLoader($this->app[AttestationStatementSupportManager::class]),
-        ));
+        $this->app->bind(PublicKeyCredentialLoader::class,
+            fn () => new PublicKeyCredentialLoader(
+                new AttestationObjectLoader($this->app[AttestationStatementSupportManager::class]),
+            ));
 
-        $this->app->bind(AuthenticatorAttestationResponseValidator::class, fn () => new AuthenticatorAttestationResponseValidator(
-            $this->app[AttestationStatementSupportManager::class],
-            null,
-            null,
-            ExtensionOutputCheckerHandler::create(),
-        ));
+        $this->app->bind(AuthenticatorAttestationResponseValidator::class,
+            fn () => new AuthenticatorAttestationResponseValidator(
+                $this->app[AttestationStatementSupportManager::class],
+                null,
+                null,
+                ExtensionOutputCheckerHandler::create(),
+            ));
 
         $this->app->bind(Manager::class, fn () => tap(Manager::create())->add(
             ES256::create(),
@@ -166,12 +178,16 @@ class CaveServiceProvider extends PackageServiceProvider
             Ed512::create(),
         ));
 
-        $this->app->bind(AuthenticatorAssertionResponseValidator::class, fn () => new AuthenticatorAssertionResponseValidator(
-            null,
-            null,
-            ExtensionOutputCheckerHandler::create(),
-            $this->app[Manager::class],
-        ));
+        $this->app->bind(AuthenticatorAssertionResponseValidator::class,
+            fn () => new AuthenticatorAssertionResponseValidator(
+                null,
+                null,
+                ExtensionOutputCheckerHandler::create(),
+                $this->app[Manager::class],
+            ));
+
+        $this->app->bind(AssertionCeremony::class, Assertion::class);
+        $this->app->bind(AttestationCeremony::class, Attestation::class);
     }
 
     /**
@@ -181,26 +197,46 @@ class CaveServiceProvider extends PackageServiceProvider
      */
     protected function registerResponseBindings()
     {
-        $this->app->singleton(FailedPasswordConfirmationResponseContract::class, FailedPasswordConfirmationResponse::class);
-        $this->app->singleton(FailedPasswordResetLinkRequestResponseContract::class, FailedPasswordResetLinkRequestResponse::class);
-        $this->app->singleton(FailedPasswordResetResponseContract::class, FailedPasswordResetResponse::class);
-        $this->app->singleton(FailedTwoFactorLoginResponseContract::class, FailedTwoFactorLoginResponse::class);
-        $this->app->singleton(LockoutResponseContract::class, LockoutResponse::class);
-        $this->app->singleton(LoginResponseContract::class, LoginResponse::class);
-        $this->app->singleton(LogoutResponseContract::class, LogoutResponse::class);
-        $this->app->singleton(PasswordConfirmedResponseContract::class, PasswordConfirmedResponse::class);
-        $this->app->singleton(PasswordResetResponseContract::class, PasswordResetResponse::class);
-        $this->app->singleton(PasswordUpdateResponseContract::class, PasswordUpdateResponse::class);
-        $this->app->singleton(ProfileInformationUpdatedResponseContract::class, ProfileInformationUpdatedResponse::class);
-        $this->app->singleton(RecoveryCodesGeneratedResponseContract::class, RecoveryCodesGeneratedResponse::class);
-        $this->app->singleton(RegisterResponseContract::class, RegisterResponse::class);
-        $this->app->singleton(EmailVerificationNotificationSentResponseContract::class, EmailVerificationNotificationSentResponse::class);
-        $this->app->singleton(SuccessfulPasswordResetLinkRequestResponseContract::class, SuccessfulPasswordResetLinkRequestResponse::class);
-        $this->app->singleton(TwoFactorConfirmedResponseContract::class, TwoFactorConfirmedResponse::class);
-        $this->app->singleton(TwoFactorDisabledResponseContract::class, TwoFactorDisabledResponse::class);
-        $this->app->singleton(TwoFactorEnabledResponseContract::class, TwoFactorEnabledResponse::class);
-        $this->app->singleton(TwoFactorLoginResponseContract::class, TwoFactorLoginResponse::class);
-        $this->app->singleton(VerifyEmailResponseContract::class, VerifyEmailResponse::class);
+        $this->app->singleton(FailedPasswordConfirmationResponseContract::class,
+            FailedPasswordConfirmationResponse::class);
+        $this->app->singleton(FailedPasswordResetLinkRequestResponseContract::class,
+            FailedPasswordResetLinkRequestResponse::class);
+        $this->app->singleton(FailedPasswordResetResponseContract::class,
+            FailedPasswordResetResponse::class);
+        $this->app->singleton(FailedTwoFactorLoginResponseContract::class,
+            FailedTwoFactorLoginResponse::class);
+        $this->app->singleton(LockoutResponseContract::class,
+            LockoutResponse::class);
+        $this->app->singleton(LoginResponseContract::class,
+            LoginResponse::class);
+        $this->app->singleton(LogoutResponseContract::class,
+            LogoutResponse::class);
+        $this->app->singleton(PasswordConfirmedResponseContract::class,
+            PasswordConfirmedResponse::class);
+        $this->app->singleton(PasswordResetResponseContract::class,
+            PasswordResetResponse::class);
+        $this->app->singleton(PasswordUpdateResponseContract::class,
+            PasswordUpdateResponse::class);
+        $this->app->singleton(ProfileInformationUpdatedResponseContract::class,
+            ProfileInformationUpdatedResponse::class);
+        $this->app->singleton(RecoveryCodesGeneratedResponseContract::class,
+            RecoveryCodesGeneratedResponse::class);
+        $this->app->singleton(RegisterResponseContract::class,
+            RegisterResponse::class);
+        $this->app->singleton(EmailVerificationNotificationSentResponseContract::class,
+            EmailVerificationNotificationSentResponse::class);
+        $this->app->singleton(SuccessfulPasswordResetLinkRequestResponseContract::class,
+            SuccessfulPasswordResetLinkRequestResponse::class);
+        $this->app->singleton(TwoFactorConfirmedResponseContract::class,
+            TwoFactorConfirmedResponse::class);
+        $this->app->singleton(TwoFactorDisabledResponseContract::class,
+            TwoFactorDisabledResponse::class);
+        $this->app->singleton(TwoFactorEnabledResponseContract::class,
+            TwoFactorEnabledResponse::class);
+        $this->app->singleton(TwoFactorLoginResponseContract::class,
+            TwoFactorLoginResponse::class);
+        $this->app->singleton(VerifyEmailResponseContract::class,
+            VerifyEmailResponse::class);
     }
 
     /**
@@ -222,10 +258,11 @@ class CaveServiceProvider extends PackageServiceProvider
 
         }
 
-        $this->app['auth']->provider('eloquent', fn ($app, array $config) => new EloquentUserProvider(
-            $app[Assertion::class],
-            $app[Hasher::class],
-            $config['model'],
-        ));
+        $this->app['auth']->provider('eloquent',
+            fn ($app, array $config) => new EloquentUserProvider(
+                $app[Assertion::class],
+                $app[Hasher::class],
+                $config['model'],
+            ));
     }
 }

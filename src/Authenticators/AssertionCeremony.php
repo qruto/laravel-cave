@@ -3,18 +3,18 @@
 namespace Qruto\Cave\Authenticators;
 
 use Qruto\Cave\Contracts\WebAuthenticatable;
-use Webauthn\PublicKeyCredentialCreationOptions;
+use Webauthn\PublicKeyCredentialRequestOptions;
 use Webauthn\PublicKeyCredentialSource;
 
-interface AttestationCeremony
+interface AssertionCeremony
 {
-    public const OPTIONS_SESSION_KEY = 'public_key_credential_creation_options';
+    public const OPTIONS_SESSION_KEY = 'public_key_credential_request_options';
 
     public function newOptions(WebAuthenticatable $user = null
-    ): PublicKeyCredentialCreationOptions;
+    ): PublicKeyCredentialRequestOptions;
 
     public function verify(
         array $credential,
-        PublicKeyCredentialCreationOptions $options
+        PublicKeyCredentialRequestOptions $options
     ): PublicKeyCredentialSource;
 }

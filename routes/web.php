@@ -37,7 +37,7 @@ if (Cave::$registersRoutes) {
                     ]));
 
                 //
-                Route::post(RoutePath::for('login', '/login'),
+                Route::post(RoutePath::for('auth', '/auth'),
                     [AuthenticatedSessionController::class, 'store'])
                     ->middleware(array_filter([
                         'guest:'.config('cave.guard'),

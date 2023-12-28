@@ -13,10 +13,6 @@ use Qruto\Cave\Http\Requests\AuthOptionsRequest;
 
 class AuthenticatedSessionOptionsController
 {
-    protected const CREDENTIAL_CREATION_OPTIONS_SESSION_KEY = 'public_key_credential_creation_options';
-
-    protected const CREDENTIAL_REQUEST_OPTIONS_SESSION_KEY = 'public_key_credential_request_options';
-
     /**
      * Create a new controller instance.
      *
@@ -54,7 +50,7 @@ class AuthenticatedSessionOptionsController
         $options = $this->assertion->newOptions($user);
 
         $request->session()->put(
-            self::CREDENTIAL_REQUEST_OPTIONS_SESSION_KEY,
+            $this->assertion::OPTIONS_SESSION_KEY,
             $options
         );
 
@@ -72,7 +68,7 @@ class AuthenticatedSessionOptionsController
         $options = $this->attestation->newOptions($user);
 
         $request->session()->put(
-            self::CREDENTIAL_CREATION_OPTIONS_SESSION_KEY,
+            $this->attestation::OPTIONS_SESSION_KEY,
             $options
         );
 

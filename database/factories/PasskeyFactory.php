@@ -4,7 +4,6 @@ namespace Qruto\Cave\Database\Factories;
 
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use ParagonIE\ConstantTime\Base64UrlSafe;
 use Qruto\Cave\Models\Passkey;
 
 /**
@@ -32,11 +31,9 @@ class PasskeyFactory extends Factory
             'user_id' => User::factory(),
             'name' => fake()->word,
             'counter' => 0,
-            'credential_id' => function (array $data) {
-                return Base64UrlSafe::encodeUnpadded($data['user_id']);
-            },
-            'credential_public_key' => Base64UrlSafe::encodeUnpadded(random_bytes(32)),
-            'transports' => [],
+            'credential_id' => random_bytes(32),
+            'credential_public_key' => random_bytes(32),
+            'transports' => ['internal'],
             'attestation_type' => 'none',
             'attestation_trust_path' => new \Webauthn\TrustPath\EmptyTrustPath,
             'attestation_aaguid' => '00000000-0000-0000-0000-000000000000',

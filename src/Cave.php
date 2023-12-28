@@ -2,14 +2,12 @@
 
 namespace Qruto\Cave;
 
+use Qruto\Cave\Contracts\AuthViewResponse;
 use Qruto\Cave\Contracts\ConfirmPasswordViewResponse;
 use Qruto\Cave\Contracts\CreatesNewUsers;
-use Qruto\Cave\Contracts\AuthViewResponse;
 use Qruto\Cave\Contracts\RegisterViewResponse;
 use Qruto\Cave\Contracts\RequestPasswordResetLinkViewResponse;
-use Qruto\Cave\Contracts\ResetPasswordViewResponse;
 use Qruto\Cave\Contracts\ResetsUserPasswords;
-use Qruto\Cave\Contracts\TwoFactorChallengeViewResponse;
 use Qruto\Cave\Contracts\UpdatesUserPasswords;
 use Qruto\Cave\Contracts\UpdatesUserProfileInformation;
 use Qruto\Cave\Contracts\VerifyEmailViewResponse;
@@ -46,11 +44,17 @@ class Cave
     public static $registersRoutes = true;
 
     const PASSWORD_UPDATED = 'password-updated';
+
     const PROFILE_INFORMATION_UPDATED = 'profile-information-updated';
+
     const RECOVERY_CODES_GENERATED = 'recovery-codes-generated';
+
     const TWO_FACTOR_AUTHENTICATION_CONFIRMED = 'two-factor-authentication-confirmed';
+
     const TWO_FACTOR_AUTHENTICATION_DISABLED = 'two-factor-authentication-disabled';
+
     const TWO_FACTOR_AUTHENTICATION_ENABLED = 'two-factor-authentication-enabled';
+
     const VERIFICATION_LINK_SENT = 'verification-link-sent';
 
     /**
@@ -76,18 +80,16 @@ class Cave
     /**
      * Get a completion redirect path for a specific feature.
      *
-     * @param  string  $redirect
      * @return string
      */
     public static function redirects(string $redirect, $default = null)
     {
-        return config('fortify.redirects.'.$redirect) ?? $default ?? config('fortify.home');
+        return config('cave.redirects.'.$redirect) ?? $default ?? config('cave.home');
     }
 
     /**
      * Register the views for Fortify using conventional names under the given namespace.
      *
-     * @param  string  $namespace
      * @return void
      */
     public static function viewNamespace(string $namespace)
@@ -98,7 +100,6 @@ class Cave
     /**
      * Register the views for Fortify using conventional names under the given prefix.
      *
-     * @param  string  $prefix
      * @return void
      */
     public static function viewPrefix(string $prefix)
@@ -144,9 +145,10 @@ class Cave
      */
     public static function verifyEmailView($view)
     {
-        app()->singleton(VerifyEmailViewResponse::class, function () use ($view) {
-            return new SimpleViewResponse($view);
-        });
+        app()->singleton(VerifyEmailViewResponse::class,
+            function () use ($view) {
+                return new SimpleViewResponse($view);
+            });
     }
 
     /**
@@ -157,9 +159,10 @@ class Cave
      */
     public static function confirmPasswordView($view)
     {
-        app()->singleton(ConfirmPasswordViewResponse::class, function () use ($view) {
-            return new SimpleViewResponse($view);
-        });
+        app()->singleton(ConfirmPasswordViewResponse::class,
+            function () use ($view) {
+                return new SimpleViewResponse($view);
+            });
     }
 
     /**
@@ -170,15 +173,15 @@ class Cave
      */
     public static function requestPasswordResetLinkView($view)
     {
-        app()->singleton(RequestPasswordResetLinkViewResponse::class, function () use ($view) {
-            return new SimpleViewResponse($view);
-        });
+        app()->singleton(RequestPasswordResetLinkViewResponse::class,
+            function () use ($view) {
+                return new SimpleViewResponse($view);
+            });
     }
 
     /**
      * Register a callback that is responsible for building the authentication pipeline array.
      *
-     * @param  callable  $callback
      * @return void
      */
     public static function loginThrough(callable $callback)
@@ -189,7 +192,6 @@ class Cave
     /**
      * Register a callback that is responsible for building the authentication pipeline array.
      *
-     * @param  callable  $callback
      * @return void
      */
     public static function authenticateThrough(callable $callback)
@@ -200,7 +202,6 @@ class Cave
     /**
      * Register a callback that is responsible for validating incoming authentication credentials.
      *
-     * @param  callable  $callback
      * @return void
      */
     public static function authenticateUsing(callable $callback)
@@ -211,7 +212,6 @@ class Cave
     /**
      * Register a callback that is responsible for confirming existing user passwords as valid.
      *
-     * @param  callable  $callback
      * @return void
      */
     public static function confirmPasswordsUsing(callable $callback)
@@ -222,7 +222,6 @@ class Cave
     /**
      * Register a class / callback that should be used to create new users.
      *
-     * @param  string  $callback
      * @return void
      */
     public static function createUsersUsing(string $callback)
@@ -233,7 +232,6 @@ class Cave
     /**
      * Register a class / callback that should be used to update user profile information.
      *
-     * @param  string  $callback
      * @return void
      */
     public static function updateUserProfileInformationUsing(string $callback)
@@ -244,7 +242,6 @@ class Cave
     /**
      * Register a class / callback that should be used to update user passwords.
      *
-     * @param  string  $callback
      * @return void
      */
     public static function updateUserPasswordsUsing(string $callback)
@@ -255,7 +252,6 @@ class Cave
     /**
      * Register a class / callback that should be used to reset user passwords.
      *
-     * @param  string  $callback
      * @return void
      */
     public static function resetUserPasswordsUsing(string $callback)
@@ -271,7 +267,8 @@ class Cave
     public static function confirmsTwoFactorAuthentication()
     {
         return Features::enabled(Features::twoFactorAuthentication()) &&
-               Features::optionEnabled(Features::twoFactorAuthentication(), 'confirm');
+            Features::optionEnabled(Features::twoFactorAuthentication(),
+                'confirm');
     }
 
     /**

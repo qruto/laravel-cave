@@ -10,13 +10,12 @@ use Qruto\Cave\Actions\AttemptToAuthenticate;
 use Qruto\Cave\Actions\CanonicalizeUsername;
 use Qruto\Cave\Actions\EnsureLoginIsNotThrottled;
 use Qruto\Cave\Actions\PrepareAuthenticatedSession;
-use Qruto\Cave\Actions\RedirectIfTwoFactorAuthenticatable;
-use Qruto\Cave\Contracts\LoginResponse;
-use Qruto\Cave\Contracts\AuthViewResponse;
-use Qruto\Cave\Contracts\LogoutResponse;
-use Qruto\Cave\Features;
 use Qruto\Cave\Cave;
-use Qruto\Cave\Http\Requests\AuthOptionsRequest;
+use Qruto\Cave\Contracts\AuthViewResponse;
+use Qruto\Cave\Contracts\LoginResponse;
+use Qruto\Cave\Contracts\LogoutResponse;
+use Qruto\Cave\Http\Requests\AssertionRequest;
+use Qruto\Cave\Http\Requests\AttestationRequest;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -30,7 +29,6 @@ class AuthenticatedSessionController extends Controller
     /**
      * Create a new controller instance.
      *
-     * @param  \Illuminate\Contracts\Auth\StatefulGuard  $guard
      * @return void
      */
     public function __construct(StatefulGuard $guard)
@@ -49,10 +47,9 @@ class AuthenticatedSessionController extends Controller
     /**
      * Attempt to authenticate a new session.
      *
-     * @param  \Qruto\Cave\Http\Requests\AuthOptionsRequest  $request
      * @return mixed
      */
-    public function store(AuthOptionsRequest $request)
+    public function store(AttestationRequest $request)
     {
         return $this->loginPipeline($request)->then(function ($request) {
             return app(LoginResponse::class);
@@ -62,11 +59,11 @@ class AuthenticatedSessionController extends Controller
     /**
      * Get the authentication pipeline instance.
      *
-     * @param  \Qruto\Cave\Http\Requests\AuthOptionsRequest  $request
      * @return \Illuminate\Pipeline\Pipeline
      */
-    protected function loginPipeline(AuthOptionsRequest $request)
-    {
+    protected function loginPipeline(
+        AttestationRequest|AssertionRequest $request
+    ) {
         if (Cave::$authenticateThroughCallback) {
             return (new Pipeline(app()))->send($request)->through(array_filter(
                 call_user_func(Cave::$authenticateThroughCallback, $request)
@@ -80,9 +77,8 @@ class AuthenticatedSessionController extends Controller
         }
 
         return (new Pipeline(app()))->send($request)->through(array_filter([
-            config('fortify.limiters.login') ? null : EnsureLoginIsNotThrottled::class,
-            config('fortify.lowercase_usernames') ? CanonicalizeUsername::class : null,
-            Features::enabled(Features::twoFactorAuthentication()) ? RedirectIfTwoFactorAuthenticatable::class : null,
+            config('cave.limiters.login') ? null : EnsureLoginIsNotThrottled::class,
+            config('cave.lowercase_usernames') ? CanonicalizeUsername::class : null,
             AttemptToAuthenticate::class,
             PrepareAuthenticatedSession::class,
         ]));
@@ -90,9 +86,6 @@ class AuthenticatedSessionController extends Controller
 
     /**
      * Destroy an authenticated session.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Qruto\Cave\Contracts\LogoutResponse
      */
     public function destroy(Request $request): LogoutResponse
     {

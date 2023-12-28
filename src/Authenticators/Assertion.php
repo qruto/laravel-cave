@@ -2,22 +2,20 @@
 
 namespace Qruto\Cave\Authenticators;
 
-use Illuminate\Contracts\Auth\Authenticatable;
 use ParagonIE\ConstantTime\Base64UrlSafe;
-use Qruto\Cave\Authenticator\InvalidAuthenticatorResponseException;
 use Qruto\Cave\Challenge;
+use Qruto\Cave\Contracts\WebAuthenticatable;
 use Qruto\Cave\Models\Passkey;
 use Webauthn\AuthenticationExtensions\AuthenticationExtensionsClientInputs;
 use Webauthn\AuthenticatorAssertionResponse;
 use Webauthn\AuthenticatorAssertionResponseValidator;
 use Webauthn\PublicKeyCredential;
 use Webauthn\PublicKeyCredentialLoader;
-use Webauthn\PublicKeyCredentialOptions;
 use Webauthn\PublicKeyCredentialRequestOptions;
 use Webauthn\PublicKeyCredentialRpEntity;
 use Webauthn\PublicKeyCredentialSource;
 
-class Assertion
+class Assertion implements AssertionCeremony
 {
     public function __construct(
         readonly private PublicKeyCredentialRpEntity $rpEntity,
@@ -27,8 +25,8 @@ class Assertion
     ) {
     }
 
-    public function newOptions(Authenticatable $user = null
-    ): PublicKeyCredentialOptions {
+    public function newOptions(WebAuthenticatable $user = null
+    ): PublicKeyCredentialRequestOptions {
         return PublicKeyCredentialRequestOptions::create(
             new Challenge(),
             $this->rpEntity->id,

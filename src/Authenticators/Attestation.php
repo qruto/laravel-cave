@@ -2,7 +2,6 @@
 
 namespace Qruto\Cave\Authenticators;
 
-use Qruto\Cave\Authenticator\InvalidAuthenticatorResponseException;
 use Qruto\Cave\Cave;
 use Qruto\Cave\Challenge;
 use Qruto\Cave\Contracts\WebAuthenticatable;
@@ -29,7 +28,7 @@ class Attestation implements AttestationCeremony
     ) {
     }
 
-    public function newOptions(?WebAuthenticatable $user
+    public function newOptions(WebAuthenticatable $user = null
     ): PublicKeyCredentialCreationOptions {
         return PublicKeyCredentialCreationOptions::create(
             $this->rpEntity,
@@ -66,7 +65,7 @@ class Attestation implements AttestationCeremony
         array $credential,
         PublicKeyCredentialCreationOptions $options
     ): PublicKeyCredentialSource {
-        $publicKeyCredential = $this->credentialLoader->load(json_encode($credential));
+        $publicKeyCredential = $this->credentialLoader->loadArray($credential);
 
         $authenticatorAttestationResponse = $publicKeyCredential->response;
 

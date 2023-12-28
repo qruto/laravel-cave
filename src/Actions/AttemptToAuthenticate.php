@@ -2,39 +2,42 @@
 
 namespace Qruto\Cave\Actions;
 
+use App\Models\User;
+use Exception;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Auth\Events\Failed;
 use Illuminate\Contracts\Auth\StatefulGuard;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Http\Request;
+use Qruto\Cave\Authenticators\Assertion;
+use Qruto\Cave\Authenticators\Attestation;
+use Qruto\Cave\Authenticators\InvalidAuthenticatorResponseException;
 use Qruto\Cave\Cave;
 use Qruto\Cave\LoginRateLimiter;
+use Qruto\Cave\Models\Passkey;
+use Throwable;
+use Webauthn\Exception\AuthenticatorResponseVerificationException;
+use Webauthn\PublicKeyCredentialCreationOptions;
 
 class AttemptToAuthenticate
 {
     /**
-     * The guard implementation.
-     *
-     * @var \Illuminate\Contracts\Auth\StatefulGuard
-     */
-    protected $guard;
-
-    /**
-     * The login rate limiter instance.
-     *
-     * @var \Qruto\Cave\LoginRateLimiter
-     */
-    protected $limiter;
-
-    /**
      * Create a new controller instance.
      *
-     * @param  \Illuminate\Contracts\Auth\StatefulGuard  $guard
-     * @param  \Qruto\Cave\LoginRateLimiter  $limiter
      * @return void
      */
-    public function __construct(StatefulGuard $guard, LoginRateLimiter $limiter)
-    {
-        $this->guard = $guard;
-        $this->limiter = $limiter;
+    public function __construct(
+        /**
+         * The guard implementation.
+         */
+        protected readonly StatefulGuard $guard,
+
+        /**
+         * The login rate limiter instance.
+         */
+        protected readonly LoginRateLimiter $limiter,
+        protected readonly Attestation $attestation,
+        protected readonly Assertion $assertion
+    ) {
     }
 
     /**
@@ -50,14 +53,53 @@ class AttemptToAuthenticate
             return $this->handleUsingCustomCallback($request, $next);
         }
 
-        if ($this->guard->attempt(
-            $request->only(Cave::username(), 'password'),
-            $request->boolean('remember'))
-        ) {
-            return $next($request);
-        }
+        $credentials = $request->all();
 
-        $this->throwFailedAuthenticationException($request);
+        // -------------------
+        try {
+            if (session()->has($this->attestation::OPTIONS_SESSION_KEY)) {
+                /** @var PublicKeyCredentialCreationOptions $options */
+                $options = session($this->attestation::OPTIONS_SESSION_KEY);
+
+                // TODO: abstract user model
+                $user = User::whereKey($options->user->id)->firstOrFail();
+
+                if ($user->passkey_verified_at !== null) {
+                    // TODO: custom exception
+                    throw new Exception('User already verified');
+                }
+
+                $publicKeyCredentialSource = $this->attestation->verify(
+                    $credentials,
+                    $options
+                );
+
+                // TODO: abstract passkey model
+                Passkey::createFromSource($publicKeyCredentialSource, $user);
+                $user->passkey_verified_at = now();
+                $user->save();
+
+                $request->session()->forget($this->attestation::OPTIONS_SESSION_KEY);
+
+                $this->guard->login($user, $request->boolean('remember'));
+
+                return $next($request);
+            }
+
+            if (session()->has($this->assertion::OPTIONS_SESSION_KEY)) {
+                if ($this->guard->attempt(
+                    $credentials,
+                    $request->boolean('remember')
+                )) {
+                    return $next($request);
+                }
+            }
+
+            //TODO: custom exception
+            $this->throwFailedAuthenticationException($request);
+        } catch (AuthenticatorResponseVerificationException|InvalidAuthenticatorResponseException $e) {
+            $this->throwFailedAuthenticationException($request, $e);
+        }
     }
 
     /**
@@ -83,23 +125,6 @@ class AttemptToAuthenticate
     }
 
     /**
-     * Throw a failed authentication validation exception.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return void
-     *
-     * @throws \Illuminate\Validation\ValidationException
-     */
-    protected function throwFailedAuthenticationException($request)
-    {
-        $this->limiter->increment($request);
-
-        throw ValidationException::withMessages([
-            Cave::username() => [trans('auth.failed')],
-        ]);
-    }
-
-    /**
      * Fire the failed authentication attempt event with the given arguments.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -111,5 +136,29 @@ class AttemptToAuthenticate
             Cave::username() => $request->{Cave::username()},
             'password' => $request->password,
         ]));
+    }
+
+    /**
+     * Throw a failed authentication validation exception.
+     *
+     * @return void
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    protected function throwFailedAuthenticationException(
+        Request $request,
+        $exception = null
+    ) {
+        $this->limiter->increment($request);
+
+        if ($exception instanceof Throwable) {
+            throw $exception;
+        }
+
+        if (is_string($exception)) {
+            throw new $exception(trans('auth.failed'));
+        }
+
+        throw new AuthenticationException(trans('auth.failed'));
     }
 }

@@ -2,51 +2,97 @@
 
 namespace Qruto\Cave\Tests;
 
-use Illuminate\Cache\RateLimiter;
-use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\Schema;
+use ParagonIE\ConstantTime\Base64UrlSafe;
+use Qruto\Cave\Authenticators\AttestationCeremony;
 use Qruto\Cave\Contracts\AuthViewResponse;
-use Qruto\Cave\Events\TwoFactorAuthenticationChallenged;
-use Qruto\Cave\Features;
-use Qruto\Cave\LoginRateLimiter;
-use Qruto\Cave\TwoFactorAuthenticatable;
-use Mockery;
+use Qruto\Cave\Models\Passkey;
+use Webauthn\AuthenticatorAttestationResponse;
+use Webauthn\AuthenticatorAttestationResponseValidator;
+use Webauthn\PublicKeyCredential;
+use Webauthn\PublicKeyCredentialLoader;
+
 use function beforeEach;
 
-beforeEach(fn() => app('config')->set([
+uses(RefreshDatabase::class);
+
+beforeEach(fn () => app('config')->set([
     'auth.providers.users.model' => TestAuthenticationSessionUser::class,
 ]));
 
 test('the auth view is returned', function () {
     $this->mock(AuthViewResponse::class)
-                ->shouldReceive('toResponse')
-                ->andReturn(response('hello world'));
+        ->shouldReceive('toResponse')
+        ->andReturn(response('hello world'));
 
-        $response = $this->get('/auth');
+    $response = $this->get('/auth');
 
-        $response->assertStatus(200);
-        $response->assertSeeText('hello world');
+    $response->assertStatus(200);
+    $response->assertSeeText('hello world');
 });
-//
-//test('the user can authenticate assertion', function () {
-//       TestAuthenticationSessionUser::forceCreate([
-//            'name' => 'Taylor Otwell',
-//            'email' => 'taylor@laravel.com',
-//            'password' => bcrypt('secret'),
-//        ]);
-//
-//        $response = $this->withoutExceptionHandling()->post('/login', [
-//            'email' => 'taylor@laravel.com',
-//            'password' => 'secret',
-//        ]);
-//
-//        $response->assertRedirect('/home');
-//});
+
+test('the user attestation verification', function () {
+    $user = \App\Models\User::factory()->create([
+        'passkey_verified_at' => null,
+    ]);
+
+    $attestation = app(AttestationCeremony::class);
+
+    $options = $attestation->newOptions($user);
+
+    $credentialId = random_bytes(32);
+
+    $authenticatorAttestationResponse = mock(AuthenticatorAttestationResponse::class);
+
+    $publicKeyCredential = PublicKeyCredential::create(
+        $credentialId,
+        'public-key',
+        $credentialId,
+        $authenticatorAttestationResponse
+    );
+
+    $this->mock(PublicKeyCredentialLoader::class)
+        ->shouldReceive('loadArray')
+        ->andReturn($publicKeyCredential);
+
+    $publicKeyCredentialSource = Passkey::factory()->make([
+        'user_id' => $user->id,
+        'credential_id' => $credentialId,
+    ])->publicKeyCredentialSource();
+
+    $this->mock(AuthenticatorAttestationResponseValidator::class)
+        ->shouldReceive('check')
+        ->withArgs([$publicKeyCredential->response, $options, app('host')])
+        ->andReturn($publicKeyCredentialSource);
+
+    session()->put(
+        AttestationCeremony::OPTIONS_SESSION_KEY,
+        $options
+    );
+
+    $response = $this->post('/auth', [
+        'id' => \base64_encode($credentialId),
+        'rawId' => \base64_encode($credentialId),
+        'name' => 'name',
+        'type' => 'public-key',
+        'response' => [
+            'clientDataJSON' => 'clientDataJSON',
+            'attestationObject' => 'attestationObject',
+        ],
+    ]);
+
+    $response->assertSessionMissing(AttestationCeremony::OPTIONS_SESSION_KEY);
+
+    $this->assertDatabaseHas('passkeys', [
+        'user_id' => $user->id,
+        'credential_id' => Base64UrlSafe::encode($credentialId),
+    ]);
+
+    $response->assertRedirect('/home');
+
+    $this->assertAuthenticatedAs($user);
+});
 //    public function test_user_can_authenticate()
 //    {
 //        TestAuthenticationSessionUser::forceCreate([
@@ -199,9 +245,9 @@ test('the auth view is returned', function () {
 //        $response->assertJsonValidationErrors(['email']);
 //    }
 
-    /**
-     * @dataProvider usernameProvider
-     */
+/**
+ * @dataProvider usernameProvider
+ */
 //    public function test_cant_bypass_throttle_with_special_characters(string $username, string $expectedResult)
 //    {
 //        $loginRateLimiter = new LoginRateLimiter(

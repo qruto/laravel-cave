@@ -1,6 +1,6 @@
 <?php
 
-namespace Qruto\Cave\Authenticator;
+namespace Qruto\Cave\Authenticators;
 
 use Exception;
 

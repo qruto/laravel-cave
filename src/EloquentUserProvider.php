@@ -2,20 +2,22 @@
 
 namespace Qruto\Cave;
 
-use Qruto\Cave\Authenticators\Assertion;
-use Qruto\Cave\Controllers\AuthController;
-use Qruto\Cave\Models\Passkey;
 use Illuminate\Auth\EloquentUserProvider as BaseEloquentUserProvider;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Hashing\Hasher;
 use ParagonIE\ConstantTime\Base64UrlSafe;
+use Qruto\Cave\Authenticators\Assertion;
+use Qruto\Cave\Models\Passkey;
 use Throwable;
 use Webauthn\Util\Base64;
 
 class EloquentUserProvider extends BaseEloquentUserProvider
 {
-    public function __construct(private Assertion $assertion, Hasher $hasher, $model)
-    {
+    public function __construct(
+        private Assertion $assertion,
+        Hasher $hasher,
+        $model
+    ) {
         parent::__construct($hasher, $model);
     }
 
@@ -28,8 +30,10 @@ class EloquentUserProvider extends BaseEloquentUserProvider
             return null;
         }
 
-        $webauthnKey = Passkey::where('credential_id', Base64UrlSafe::encode(Base64::decode($credentials['id'])))
-            ->orWhere('credential_id', Base64UrlSafe::encodeUnpadded(Base64::decode($credentials['id'])))
+        $webauthnKey = Passkey::where('credential_id',
+            Base64UrlSafe::encode(Base64::decode($credentials['id'])))
+            ->orWhere('credential_id',
+                Base64UrlSafe::encodeUnpadded(Base64::decode($credentials['id'])))
             ->first();
 
         if (! $webauthnKey) {
@@ -50,11 +54,14 @@ class EloquentUserProvider extends BaseEloquentUserProvider
     /**
      * Validate a user against the given credentials.
      */
-    public function validateCredentials(Authenticatable $user, array $credentials): bool
-    {
-        if ($this->isValidCredentials($credentials) && session()->has(AuthController::CREDENTIAL_REQUEST_OPTIONS_SESSION_KEY)) {
+    public function validateCredentials(
+        Authenticatable $user,
+        array $credentials
+    ): bool {
+        if ($this->isValidCredentials($credentials) && session()->has($this->assertion::OPTIONS_SESSION_KEY)) {
             try {
-                $this->assertion->verify($credentials, session(AuthController::CREDENTIAL_REQUEST_OPTIONS_SESSION_KEY));
+                $this->assertion->verify($credentials,
+                    session($this->assertion::OPTIONS_SESSION_KEY));
             } catch (Throwable $th) {
                 return false;
             }
