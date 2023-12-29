@@ -60,8 +60,10 @@ class EloquentUserProvider extends BaseEloquentUserProvider
     ): bool {
         if ($this->isValidCredentials($credentials) && session()->has($this->assertion::OPTIONS_SESSION_KEY)) {
             try {
-                $this->assertion->verify($credentials,
-                    session($this->assertion::OPTIONS_SESSION_KEY));
+                $this->assertion->verify(
+                    $credentials,
+                    session($this->assertion::OPTIONS_SESSION_KEY)
+                );
             } catch (Throwable $th) {
                 return false;
             }

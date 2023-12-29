@@ -2,14 +2,20 @@
 
 namespace Qruto\Cave\Tests;
 
-use Illuminate\Foundation\Auth\User;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use ParagonIE\ConstantTime\Base64UrlSafe;
+use Qruto\Cave\Authenticators\AssertionCeremony;
 use Qruto\Cave\Authenticators\AttestationCeremony;
+use Qruto\Cave\Challenge;
 use Qruto\Cave\Contracts\AuthViewResponse;
 use Qruto\Cave\Models\Passkey;
+use Webauthn\AuthenticatorAssertionResponse;
+use Webauthn\AuthenticatorAssertionResponseValidator;
 use Webauthn\AuthenticatorAttestationResponse;
 use Webauthn\AuthenticatorAttestationResponseValidator;
+use Webauthn\AuthenticatorData;
+use Webauthn\CollectedClientData;
 use Webauthn\PublicKeyCredential;
 use Webauthn\PublicKeyCredentialLoader;
 
@@ -18,7 +24,7 @@ use function beforeEach;
 uses(RefreshDatabase::class);
 
 beforeEach(fn () => app('config')->set([
-    'auth.providers.users.model' => TestAuthenticationSessionUser::class,
+    'auth.providers.users.model' => User::class,
 ]));
 
 test('the auth view is returned', function () {
@@ -93,6 +99,99 @@ test('the user attestation verification', function () {
 
     $this->assertAuthenticatedAs($user);
 });
+
+test('the user assertion verification', function () {
+    $user = \App\Models\User::factory()->hasPasskeys()->create([
+        'passkey_verified_at' => now(),
+    ]);
+
+    $passkey = $user->passkeys->first();
+
+    $assertion = app(AssertionCeremony::class);
+
+    $options = $assertion->newOptions($user);
+
+    $credentialId = $passkey->credential_id;
+
+    $challenge = Challenge::fake();
+
+    $clientData = [
+        'type' => 'webauthn.get',
+        'challenge' => Base64UrlSafe::encodeUnpadded($challenge),
+        'origin' => app('host'),
+        'crossOrigin' => false,
+    ];
+
+    $authData = \random_bytes(32);
+
+    $authenticatorAttestationResponse = AuthenticatorAssertionResponse::create(
+        new CollectedClientData(
+            \base64_encode(json_encode($clientData)),
+            $clientData,
+        ),
+        new AuthenticatorData(
+            $authData,
+            $authData,
+            '',
+            0,
+            null,
+            null,
+        ),
+        'signature',
+        $user->id,
+    );
+
+    $publicKeyCredential = PublicKeyCredential::create(
+        $credentialId,
+        'public-key',
+        $credentialId,
+        $authenticatorAttestationResponse
+    );
+
+    $this->mock(PublicKeyCredentialLoader::class)
+        ->shouldReceive('loadArray')
+        ->andReturn($publicKeyCredential);
+
+    $publicKeyCredentialSource = Passkey::factory()->make([
+        'user_id' => $user->id,
+        'credential_id' => $credentialId,
+    ])->publicKeyCredentialSource();
+
+    $this->mock(AuthenticatorAssertionResponseValidator::class)
+        ->shouldReceive('check')
+//        ->withArgs([$publicKeyCredential->response, $options, app('host')])
+        ->andReturn($publicKeyCredentialSource);
+
+    session()->put(
+        AssertionCeremony::OPTIONS_SESSION_KEY,
+        $options
+    );
+
+    $response = $this->post('/auth', [
+        'id' => base64_encode($credentialId),
+        'rawId' => base64_encode($credentialId),
+        'name' => 'name',
+        'type' => 'public-key',
+        'response' => [
+            'authenticatorData' => 'authenticatorData',
+            'clientDataJSON' => 'clientDataJSON',
+            'signature' => 'signature',
+            'userHandle' => $user->id,
+        ],
+    ]);
+
+    $response->assertSessionMissing(AssertionCeremony::OPTIONS_SESSION_KEY);
+
+    $this->assertDatabaseHas('passkeys', [
+        'user_id' => $user->id,
+        'credential_id' => Base64UrlSafe::encode($credentialId),
+    ]);
+
+    $response->assertRedirect('/home');
+
+    $this->assertAuthenticatedAs($user);
+});
+
 //    public function test_user_can_authenticate()
 //    {
 //        TestAuthenticationSessionUser::forceCreate([

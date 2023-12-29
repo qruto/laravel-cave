@@ -91,6 +91,8 @@ class AttemptToAuthenticate
                     $credentials,
                     $request->boolean('remember')
                 )) {
+                    $request->session()->forget($this->assertion::OPTIONS_SESSION_KEY);
+
                     return $next($request);
                 }
             }

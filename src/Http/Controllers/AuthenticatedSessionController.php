@@ -14,8 +14,7 @@ use Qruto\Cave\Cave;
 use Qruto\Cave\Contracts\AuthResponse;
 use Qruto\Cave\Contracts\AuthViewResponse;
 use Qruto\Cave\Contracts\LogoutResponse;
-use Qruto\Cave\Http\Requests\AssertionRequest;
-use Qruto\Cave\Http\Requests\AttestationRequest;
+use Qruto\Cave\Http\Requests\AuthVerifyRequest;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -49,7 +48,7 @@ class AuthenticatedSessionController extends Controller
      *
      * @return mixed
      */
-    public function store(AttestationRequest $request)
+    public function store(AuthVerifyRequest $request)
     {
         return $this->authPipeline($request)->then(function ($request) {
             return app(AuthResponse::class);
@@ -62,7 +61,7 @@ class AuthenticatedSessionController extends Controller
      * @return \Illuminate\Pipeline\Pipeline
      */
     protected function authPipeline(
-        AttestationRequest|AssertionRequest $request
+        AuthVerifyRequest $request
     ) {
         if (Cave::$authenticateThroughCallback) {
             return (new Pipeline(app()))->send($request)->through(array_filter(

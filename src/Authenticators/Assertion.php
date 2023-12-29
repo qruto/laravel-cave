@@ -68,12 +68,14 @@ class Assertion implements AssertionCeremony
     ) {
         $credentialId = $publicKeyCredential->rawId;
 
-        return Passkey::where(fn ($query) => $query->where('credential_id',
-            Base64UrlSafe::encode($credentialId))
-            ->orWhere('credential_id',
-                Base64UrlSafe::encodeUnpadded($credentialId))
-        )
-            ->firstOrFail()
-            ->publicKeyCredentialSource();
+        return Passkey::where(
+            fn ($query) => $query->where(
+                'credential_id',
+                Base64UrlSafe::encode($credentialId)
+            )->orWhere(
+                'credential_id',
+                Base64UrlSafe::encodeUnpadded($credentialId)
+            )
+        )->firstOrFail()->publicKeyCredentialSource();
     }
 }
