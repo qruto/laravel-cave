@@ -12,6 +12,7 @@ use Qruto\Cave\Authenticators\Assertion;
 use Qruto\Cave\Authenticators\Attestation;
 use Qruto\Cave\Authenticators\InvalidAuthenticatorResponseException;
 use Qruto\Cave\Cave;
+use Qruto\Cave\Http\Requests\AuthVerifyRequest;
 use Qruto\Cave\LoginRateLimiter;
 use Qruto\Cave\Models\Passkey;
 use Throwable;
@@ -43,11 +44,9 @@ class AttemptToAuthenticate
     /**
      * Handle the incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  callable  $next
      * @return mixed
      */
-    public function handle($request, $next)
+    public function handle(AuthVerifyRequest $request, callable $next)
     {
         if (Cave::$authenticateUsingCallback) {
             return $this->handleUsingCustomCallback($request, $next);
@@ -55,7 +54,6 @@ class AttemptToAuthenticate
 
         $credentials = $request->all();
 
-        // -------------------
         try {
             if (session()->has($this->attestation::OPTIONS_SESSION_KEY)) {
                 /** @var PublicKeyCredentialCreationOptions $options */
@@ -134,7 +132,7 @@ class AttemptToAuthenticate
      */
     protected function fireFailedEvent($request)
     {
-        event(new Failed(config('fortify.guard'), null, [
+        event(new Failed(config('cave.guard'), null, [
             Cave::username() => $request->{Cave::username()},
             'password' => $request->password,
         ]));

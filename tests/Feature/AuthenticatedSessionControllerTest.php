@@ -3,7 +3,9 @@
 namespace Qruto\Cave\Tests;
 
 use App\Models\User;
+use Hamcrest\Core\IsEqual;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Mockery\CompositeExpectation;
 use ParagonIE\ConstantTime\Base64UrlSafe;
 use Qruto\Cave\Authenticators\AssertionCeremony;
 use Qruto\Cave\Authenticators\AttestationCeremony;
@@ -16,10 +18,12 @@ use Webauthn\AuthenticatorAttestationResponse;
 use Webauthn\AuthenticatorAttestationResponseValidator;
 use Webauthn\AuthenticatorData;
 use Webauthn\CollectedClientData;
+use Webauthn\Exception\AuthenticatorResponseVerificationException;
 use Webauthn\PublicKeyCredential;
 use Webauthn\PublicKeyCredentialLoader;
 
 use function beforeEach;
+use function Pest\Laravel\post;
 
 uses(RefreshDatabase::class);
 
@@ -101,19 +105,60 @@ test('the user attestation verification', function () {
 });
 
 test('the user assertion verification', function () {
-    $user = \App\Models\User::factory()->hasPasskeys()->create([
+    [$response, $user, $credentialId] = prepareAssertion();
+
+    $response->assertSessionMissing(AssertionCeremony::OPTIONS_SESSION_KEY);
+
+    $this->assertDatabaseHas('passkeys', [
+        'user_id' => $user->id,
+        'credential_id' => Base64UrlSafe::encode($credentialId),
+        'name' => 'name',
+    ]);
+
+    $response->assertRedirect('/home');
+
+    $this->assertAuthenticatedAs($user);
+});
+
+test('the user assertion verification fails with invalid credentials',
+    function () {
+        [$response, $user, $credentialId] = prepareAssertion(
+            fn (
+                CompositeExpectation $e
+            ) => $e->andThrow(AuthenticatorResponseVerificationException::create('Invalid credentials'))
+        );
+
+        $response->assertSessionHas(AssertionCeremony::OPTIONS_SESSION_KEY);
+
+        $this->assertDatabaseHas('passkeys', [
+            'user_id' => (string) $user->getAuthIdentifier(),
+            'credential_id' => Base64UrlSafe::encode($credentialId),
+        ]);
+
+        //        $response->exc('/auth');
+
+        $this->assertGuest();
+    });
+
+/**
+ * Prepares user, passkey, options needed for user assertion verification.
+ *
+ * @param  ?callable(\Mockery\CompositeExpectation): void  $validatorMock
+ * @return array{\Illuminate\Testing\TestResponse,\App\Models\User,string,\Webauthn\PublicKeyCredential,\Webauthn\PublicKeyCredential}
+ */
+function prepareAssertion(callable $validatorMock = null)
+{
+    $user = \App\Models\User::factory()->hasPasskeys(1, [
+        'name' => 'name',
+    ])->create([
         'passkey_verified_at' => now(),
     ]);
 
-    $passkey = $user->passkeys->first();
-
     $assertion = app(AssertionCeremony::class);
-
     $options = $assertion->newOptions($user);
-
-    $credentialId = $passkey->credential_id;
-
     $challenge = Challenge::fake();
+    $passkey = $user->passkeys->first();
+    $credentialId = $passkey->credential_id;
 
     $clientData = [
         'type' => 'webauthn.get',
@@ -122,7 +167,7 @@ test('the user assertion verification', function () {
         'crossOrigin' => false,
     ];
 
-    $authData = \random_bytes(32);
+    $authData = random_bytes(32);
 
     $authenticatorAttestationResponse = AuthenticatorAssertionResponse::create(
         new CollectedClientData(
@@ -148,49 +193,57 @@ test('the user assertion verification', function () {
         $authenticatorAttestationResponse
     );
 
-    $this->mock(PublicKeyCredentialLoader::class)
-        ->shouldReceive('loadArray')
-        ->andReturn($publicKeyCredential);
+    app()->instance(
+        PublicKeyCredentialLoader::class,
+        mock(PublicKeyCredentialLoader::class)
+    )->shouldReceive('loadArray')->andReturn($publicKeyCredential);
 
-    $publicKeyCredentialSource = Passkey::factory()->make([
-        'user_id' => $user->id,
-        'credential_id' => $credentialId,
-    ])->publicKeyCredentialSource();
+    $publicKeyCredentialSource = $passkey->publicKeyCredentialSource();
 
-    $this->mock(AuthenticatorAssertionResponseValidator::class)
-        ->shouldReceive('check')
-//        ->withArgs([$publicKeyCredential->response, $options, app('host')])
-        ->andReturn($publicKeyCredentialSource);
+    $validator = app()->instance(
+        AuthenticatorAssertionResponseValidator::class,
+        mock(AuthenticatorAssertionResponseValidator::class)
+    );
+
+    if ($validatorMock !== null) {
+        $validatorMock($validator->shouldReceive('check'));
+    } else {
+        $validator->shouldReceive('check')
+            ->with(
+                IsEqual::equalTo($publicKeyCredentialSource),
+                $publicKeyCredential->response,
+                $options,
+                app('host'),
+                (string) $user->id,
+            )
+            ->andReturn($publicKeyCredentialSource);
+    }
 
     session()->put(
         AssertionCeremony::OPTIONS_SESSION_KEY,
         $options
     );
 
-    $response = $this->post('/auth', [
-        'id' => base64_encode($credentialId),
-        'rawId' => base64_encode($credentialId),
-        'name' => 'name',
-        'type' => 'public-key',
-        'response' => [
-            'authenticatorData' => 'authenticatorData',
-            'clientDataJSON' => 'clientDataJSON',
-            'signature' => 'signature',
-            'userHandle' => $user->id,
-        ],
-    ]);
+    return [
+        post('/auth', [
+            'id' => base64_encode($credentialId),
+            'rawId' => base64_encode($credentialId),
+            'name' => 'name',
+            'type' => 'public-key',
+            'response' => [
+                'authenticatorData' => 'authenticatorData',
+                'clientDataJSON' => 'clientDataJSON',
+                'signature' => 'signature',
+                'userHandle' => $user->id,
+            ],
+        ]),
+        $user,
+        $credentialId,
+        $publicKeyCredential,
+    ];
+}
 
-    $response->assertSessionMissing(AssertionCeremony::OPTIONS_SESSION_KEY);
-
-    $this->assertDatabaseHas('passkeys', [
-        'user_id' => $user->id,
-        'credential_id' => Base64UrlSafe::encode($credentialId),
-    ]);
-
-    $response->assertRedirect('/home');
-
-    $this->assertAuthenticatedAs($user);
-});
+//test('the assertion verification validation')
 
 //    public function test_user_can_authenticate()
 //    {

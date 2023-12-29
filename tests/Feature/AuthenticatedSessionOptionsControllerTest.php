@@ -136,6 +136,8 @@ it('generates assertion options without resident key', function () {
 
     $user = User::factory()->hasPasskeys()->create();
 
+    $passkey = $user->passkeys->first();
+
     $this->post(
         'auth/options',
         ['email' => $user->email, 'name' => $user->name]
@@ -143,7 +145,8 @@ it('generates assertion options without resident key', function () {
         'challenge' => Base64UrlSafe::encodeUnpadded($challenge),
         'allowCredentials' => [
             [
-                'id' => 'TVE',
+                'id' => Base64UrlSafe::encodeUnpadded($passkey->credential_id),
+                'transports' => ['internal'],
                 'type' => 'public-key',
             ],
         ],
