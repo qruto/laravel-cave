@@ -10,13 +10,12 @@ use Qruto\Cave\Authenticators\Attestation;
 use Qruto\Cave\Cave;
 use Qruto\Cave\Contracts\CreatesNewUsers;
 use Qruto\Cave\Http\Requests\AuthOptionsRequest;
+use Qruto\Cave\Models\User;
 
 class AuthenticatedSessionOptionsController
 {
     /**
      * Create a new controller instance.
-     *
-     * @return void
      */
     public function __construct(
         private readonly Attestation $attestation,
@@ -25,6 +24,7 @@ class AuthenticatedSessionOptionsController
         private readonly CreatesNewUsers $creator
     ) {
     }
+
 
     public function store(AuthOptionsRequest $request)
     {
@@ -45,9 +45,13 @@ class AuthenticatedSessionOptionsController
         return $this->attestationOptions($user, $request);
     }
 
-    private function assertionOptions($user, AuthOptionsRequest $request)
+    private function assertionOptions(User $user, AuthOptionsRequest $request)
     {
         $options = $this->assertion->newOptions($user);
+
+        if ($request->session()->has($this->attestation::OPTIONS_SESSION_KEY)) {
+            $request->session()->forget($this->attestation::OPTIONS_SESSION_KEY);
+        }
 
         $request->session()->put(
             $this->assertion::OPTIONS_SESSION_KEY,
@@ -57,12 +61,15 @@ class AuthenticatedSessionOptionsController
         return response()->json($options);
     }
 
-    private function attestationOptions($user, AuthOptionsRequest $request)
+    private function attestationOptions(User $user, AuthOptionsRequest $request)
     {
-        $this->creator->create($request->all(), $user);
-
         if (! $user->exists) {
+            $this->creator->create($request->all(), $user);
             $user->save();
+        }
+
+        if ($request->session()->has($this->assertion::OPTIONS_SESSION_KEY)) {
+            $request->session()->forget($this->assertion::OPTIONS_SESSION_KEY);
         }
 
         $options = $this->attestation->newOptions($user);

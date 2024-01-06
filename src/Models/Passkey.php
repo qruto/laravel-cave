@@ -2,10 +2,11 @@
 
 namespace Qruto\Cave\Models;
 
-use App\Models\User;
+use Illuminate\Contracts\Auth\StatefulGuard;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Qruto\Cave\Contracts\WebAuthenticatable;
 use Qruto\Cave\Database\Factories\PasskeyFactory;
 use Symfony\Component\Uid\Uuid;
 use Webauthn\PublicKeyCredentialDescriptor;
@@ -54,7 +55,7 @@ class Passkey extends Model
      */
     public static function createFromSource(
         PublicKeyCredentialSource $source,
-        User $user
+        WebAuthenticatable $user
     ) {
         $authKey = new self();
 
@@ -76,7 +77,7 @@ class Passkey extends Model
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(app(StatefulGuard::class)->getProvider()->getModel());
     }
 
     protected static function newFactory(): PasskeyFactory

@@ -49,7 +49,7 @@ class AuthVerifyRequest extends FormRequest
             case Ceremony::Assertion:
                 return [
                     'id' => ['required', 'string'],
-                    'type' => ['required', 'string'],
+                    'type' => ['required', 'string', 'in:public-key'],
                     'rawId' => ['required', 'string'],
                     'response.authenticatorData' => ['required', 'string'],
                     'response.clientDataJSON' => ['required', 'string'],
@@ -60,8 +60,8 @@ class AuthVerifyRequest extends FormRequest
             case Ceremony::Attestation:
                 return [
                     'id' => ['required', 'string'],
-                    'name' => ['required', 'string'],
-                    'type' => ['required', 'string'],
+                    'name' => ['nullable', 'string'],
+                    'type' => ['required', 'string', 'in:public-key'],
                     'rawId' => ['required', 'string'],
                     'response.clientDataJSON' => ['required', 'string'],
                     'response.attestationObject' => ['required', 'string'],

@@ -18,21 +18,11 @@ use Qruto\Cave\Http\Requests\AuthVerifyRequest;
 
 class AuthenticatedSessionController extends Controller
 {
-    /**
-     * The guard implementation.
-     *
-     * @var \Illuminate\Contracts\Auth\StatefulGuard
-     */
-    protected $guard;
-
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct(StatefulGuard $guard)
-    {
-        $this->guard = $guard;
+    /** Create a new controller instance. */
+    public function __construct(
+        /** The guard implementation. */
+        protected StatefulGuard $guard
+    ) {
     }
 
     /**

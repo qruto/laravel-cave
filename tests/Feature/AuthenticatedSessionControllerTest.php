@@ -135,18 +135,29 @@ test('the user assertion verification fails with invalid credentials',
             'credential_id' => Base64UrlSafe::encode($credentialId),
         ]);
 
-        //        $response->exc('/auth');
+        $response->assertRedirect('/auth');
 
         $this->assertGuest();
-    });
+    }
+);
+
+
+test('the assertion verification validation fails', function () {
+    [$response] = prepareAssertion(data: fn (array $data) => array_filter($data, fn ($key) => $key !== 'rawId', ARRAY_FILTER_USE_KEY));
+
+    $response->assertSessionHas(AssertionCeremony::OPTIONS_SESSION_KEY);
+
+    $response->assertSessionHasErrors('rawId');
+});
 
 /**
  * Prepares user, passkey, options needed for user assertion verification.
  *
  * @param  ?callable(\Mockery\CompositeExpectation): void  $validatorMock
+ * @param  ?callable(array): array  $data
  * @return array{\Illuminate\Testing\TestResponse,\App\Models\User,string,\Webauthn\PublicKeyCredential,\Webauthn\PublicKeyCredential}
  */
-function prepareAssertion(callable $validatorMock = null)
+function prepareAssertion(callable $validatorMock = null, callable $data = null)
 {
     $user = \App\Models\User::factory()->hasPasskeys(1, [
         'name' => 'name',
@@ -224,26 +235,26 @@ function prepareAssertion(callable $validatorMock = null)
         $options
     );
 
+    $input = [
+        'id' => base64_encode($credentialId),
+        'rawId' => base64_encode($credentialId),
+        'name' => 'name',
+        'type' => 'public-key',
+        'response' => [
+            'authenticatorData' => 'authenticatorData',
+            'clientDataJSON' => 'clientDataJSON',
+            'signature' => 'signature',
+            'userHandle' => $user->id,
+        ],
+    ];
+
     return [
-        post('/auth', [
-            'id' => base64_encode($credentialId),
-            'rawId' => base64_encode($credentialId),
-            'name' => 'name',
-            'type' => 'public-key',
-            'response' => [
-                'authenticatorData' => 'authenticatorData',
-                'clientDataJSON' => 'clientDataJSON',
-                'signature' => 'signature',
-                'userHandle' => $user->id,
-            ],
-        ]),
+        post(route('auth'), $data ? $data($input) : $input),
         $user,
         $credentialId,
         $publicKeyCredential,
     ];
 }
-
-//test('the assertion verification validation')
 
 //    public function test_user_can_authenticate()
 //    {

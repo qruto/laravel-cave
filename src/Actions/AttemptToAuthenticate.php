@@ -55,6 +55,7 @@ class AttemptToAuthenticate
         $credentials = $request->all();
 
         try {
+            // TODO: rethink state management
             if (session()->has($this->attestation::OPTIONS_SESSION_KEY)) {
                 /** @var PublicKeyCredentialCreationOptions $options */
                 $options = session($this->attestation::OPTIONS_SESSION_KEY);
@@ -159,6 +160,6 @@ class AttemptToAuthenticate
             throw new $exception(trans('auth.failed'));
         }
 
-        throw new AuthenticationException(trans('auth.failed'));
+        throw new AuthenticationException(trans('auth.failed'), [$this->guard->name], route('auth'));
     }
 }

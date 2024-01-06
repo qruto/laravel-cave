@@ -104,8 +104,7 @@ class Cave
      */
     public static function viewPrefix(string $prefix)
     {
-        static::loginView($prefix.'login');
-        static::registerView($prefix.'register');
+        static::authView($prefix.'login');
         static::requestPasswordResetLinkView($prefix.'forgot-password');
         static::verifyEmailView($prefix.'verify-email');
         static::confirmPasswordView($prefix.'confirm-password');
@@ -117,22 +116,9 @@ class Cave
      * @param  callable|string  $view
      * @return void
      */
-    public static function loginView($view)
+    public static function authView($view)
     {
         app()->singleton(AuthViewResponse::class, function () use ($view) {
-            return new SimpleViewResponse($view);
-        });
-    }
-
-    /**
-     * Specify which view should be used as the registration view.
-     *
-     * @param  callable|string  $view
-     * @return void
-     */
-    public static function registerView($view)
-    {
-        app()->singleton(RegisterViewResponse::class, function () use ($view) {
             return new SimpleViewResponse($view);
         });
     }

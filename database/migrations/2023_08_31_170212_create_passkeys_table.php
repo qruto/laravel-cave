@@ -10,6 +10,7 @@ return new class extends Migration
     {
         Schema::create('passkeys', function (Blueprint $table) {
             $table->id();
+            // TODO: change id type
             $table->foreignUlid('user_id')->constrained('users');
             $table->string('name')->nullable();
             $table->text('credential_id');

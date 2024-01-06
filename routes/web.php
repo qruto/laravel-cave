@@ -24,8 +24,7 @@ if (Cave::$registersRoutes) {
                         ->name('auth');
                 }
 
-                $limiter = config('cave.limiters.login');
-                $twoFactorLimiter = config('cave.limiters.two-factor');
+                $limiter = config('cave.limiters.auth');
                 $verificationLimiter = config('cave.limiters.verification',
                     '6,1');
 
@@ -33,19 +32,20 @@ if (Cave::$registersRoutes) {
                     [AuthenticatedSessionOptionsController::class, 'store'])
                     ->middleware(array_filter([
                         'guest:'.config('cave.guard'),
-                        //                    $limiter ? 'throttle:'.$limiter : null,
-                    ]));
+                        $limiter ? 'throttle:'.$limiter : null,
+                ]))->name('auth.options');
 
                 //
                 Route::post(RoutePath::for('auth', '/auth'),
                     [AuthenticatedSessionController::class, 'store'])
                     ->middleware(array_filter([
                         'guest:'.config('cave.guard'),
+                        // TODO: check same limiter usage
                         $limiter ? 'throttle:'.$limiter : null,
                     ]));
-                //
-                //    Route::post(RoutePath::for('logout', '/logout'), [AuthenticatedSessionController::class, 'destroy'])
-                //        ->name('logout');
+
+                Route::post(RoutePath::for('logout', '/logout'), [AuthenticatedSessionController::class, 'destroy'])
+                    ->name('logout');
                 //
                 //    // Password Reset...
                 //    if (Features::enabled(Features::resetPasswords())) {
