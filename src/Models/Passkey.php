@@ -55,24 +55,26 @@ class Passkey extends Model
      */
     public static function createFromSource(
         PublicKeyCredentialSource $source,
-        WebAuthenticatable $user
+        WebAuthenticatable $user,
+        string $name,
     ) {
-        $authKey = new self();
+        $passkey = new self();
 
-        $authKey->credential_id = $source->publicKeyCredentialId;
-        $authKey->credential_public_key = $source->credentialPublicKey;
-        $authKey->transports = $source->transports;
-        $authKey->counter = $source->counter;
-        $authKey->attestation_type = $source->attestationType;
-        $authKey->attestation_trust_path = $source->trustPath;
-        $authKey->attestation_aaguid = $source->aaguid;
-        $authKey->last_used_at = now();
+        $passkey->name = $name;
+        $passkey->credential_id = $source->publicKeyCredentialId;
+        $passkey->credential_public_key = $source->credentialPublicKey;
+        $passkey->transports = $source->transports;
+        $passkey->counter = $source->counter;
+        $passkey->attestation_type = $source->attestationType;
+        $passkey->attestation_trust_path = $source->trustPath;
+        $passkey->attestation_aaguid = $source->aaguid;
+        $passkey->last_used_at = now();
 
-        $authKey->user()->associate($user);
+        $passkey->user()->associate($user);
 
-        $authKey->save();
+        $passkey->save();
 
-        return $authKey;
+        return $passkey;
     }
 
     public function user(): BelongsTo

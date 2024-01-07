@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             // TODO: change id type
             $table->foreignUlid('user_id')->constrained('users');
-            $table->string('name')->nullable();
+            $table->string('name');
             $table->text('credential_id');
             $table->text('credential_public_key');
             $table->json('transports');

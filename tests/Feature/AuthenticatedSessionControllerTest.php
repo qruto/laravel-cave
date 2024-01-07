@@ -84,12 +84,13 @@ test('the user attestation verification', function () {
     $response = $this->post('/auth', [
         'id' => \base64_encode($credentialId),
         'rawId' => \base64_encode($credentialId),
-        'name' => 'name',
         'type' => 'public-key',
         'response' => [
             'clientDataJSON' => 'clientDataJSON',
             'attestationObject' => 'attestationObject',
         ],
+    ], headers: [
+        'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_6_8) AppleWebKit/537.13+ (KHTML, like Gecko) Version/5.1.7 Safari/534.57.2',
     ]);
 
     $response->assertSessionMissing(AttestationCeremony::OPTIONS_SESSION_KEY);
@@ -97,6 +98,7 @@ test('the user attestation verification', function () {
     $this->assertDatabaseHas('passkeys', [
         'user_id' => $user->id,
         'credential_id' => Base64UrlSafe::encode($credentialId),
+        'name' => 'OS X (Safari)',
     ]);
 
     $response->assertRedirect('/home');
@@ -112,7 +114,6 @@ test('the user assertion verification', function () {
     $this->assertDatabaseHas('passkeys', [
         'user_id' => $user->id,
         'credential_id' => Base64UrlSafe::encode($credentialId),
-        'name' => 'name',
     ]);
 
     $response->assertRedirect('/home');
@@ -160,6 +161,7 @@ test('the assertion verification validation fails', function () {
 function prepareAssertion(callable $validatorMock = null, callable $data = null)
 {
     $user = \App\Models\User::factory()->hasPasskeys(1, [
+        // TODO: change name
         'name' => 'name',
     ])->create([
         'passkey_verified_at' => now(),
@@ -238,7 +240,6 @@ function prepareAssertion(callable $validatorMock = null, callable $data = null)
     $input = [
         'id' => base64_encode($credentialId),
         'rawId' => base64_encode($credentialId),
-        'name' => 'name',
         'type' => 'public-key',
         'response' => [
             'authenticatorData' => 'authenticatorData',

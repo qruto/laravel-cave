@@ -8,6 +8,7 @@ use Illuminate\Auth\AuthenticationException;
 use Illuminate\Auth\Events\Failed;
 use Illuminate\Contracts\Auth\StatefulGuard;
 use Illuminate\Http\Request;
+use Qruto\Cave\Agent;
 use Qruto\Cave\Authenticators\Assertion;
 use Qruto\Cave\Authenticators\Attestation;
 use Qruto\Cave\Authenticators\InvalidAuthenticatorResponseException;
@@ -73,8 +74,20 @@ class AttemptToAuthenticate
                     $options
                 );
 
+                $name = null;
+
+                // TODO: abstract working with agent and make customizable default name
+                if ($request->has('name')) {
+                    $name = $request->input('name');
+                } else {
+                    $agent = new Agent();
+                    $agent->setUserAgent($request->userAgent());
+
+                    $name = $agent->platform().' ('.$agent->browser().')';
+                }
+
                 // TODO: abstract passkey model
-                Passkey::createFromSource($publicKeyCredentialSource, $user);
+                Passkey::createFromSource($publicKeyCredentialSource, $user, $name);
                 $user->passkey_verified_at = now();
                 $user->save();
 
