@@ -3,10 +3,9 @@
 namespace Qruto\Cave\Http\Responses;
 
 use Illuminate\Http\Response;
-use Illuminate\Validation\ValidationException;
-use Qruto\Cave\Contracts\LockoutResponse as LockoutResponseContract;
-use Qruto\Cave\Cave;
 use Qruto\Cave\AuthRateLimiter;
+use Qruto\Cave\Contracts\LockoutResponse as LockoutResponseContract;
+use Qruto\Cave\Http\Requests\AuthVerifyRequest;
 
 class LockoutResponse implements LockoutResponseContract
 {
@@ -20,7 +19,6 @@ class LockoutResponse implements LockoutResponseContract
     /**
      * Create a new response instance.
      *
-     * @param  \Qruto\Cave\AuthRateLimiter  $limiter
      * @return void
      */
     public function __construct(AuthRateLimiter $limiter)
@@ -36,15 +34,12 @@ class LockoutResponse implements LockoutResponseContract
      */
     public function toResponse($request)
     {
-        return with($this->limiter->availableIn($request), function ($seconds) {
-            throw ValidationException::withMessages([
-                Cave::username() => [
-                    trans('auth.throttle', [
-                        'seconds' => $seconds,
-                        'minutes' => ceil($seconds / 60),
-                    ]),
-                ],
-            ])->status(Response::HTTP_TOO_MANY_REQUESTS);
-        });
+        return with($this->limiter->availableIn(AuthVerifyRequest::createFrom($request)),
+            function ($seconds) {
+                return response(trans('auth.throttle', [
+                    'seconds' => $seconds,
+                    'minutes' => ceil($seconds / 60),
+                ]), Response::HTTP_TOO_MANY_REQUESTS);
+            });
     }
 }

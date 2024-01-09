@@ -4,6 +4,7 @@ namespace Qruto\Cave\Tests;
 
 use App\Models\User;
 use Hamcrest\Core\IsEqual;
+use Illuminate\Cache\RateLimiter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Response;
 use Mockery\CompositeExpectation;
@@ -12,7 +13,6 @@ use Qruto\Cave\Authenticators\AssertionCeremony;
 use Qruto\Cave\Authenticators\AttestationCeremony;
 use Qruto\Cave\Challenge;
 use Qruto\Cave\Contracts\AuthViewResponse;
-use Qruto\Cave\AuthRateLimiter;
 use Qruto\Cave\Models\Passkey;
 use Webauthn\AuthenticatorAssertionResponse;
 use Webauthn\AuthenticatorAssertionResponseValidator;
@@ -145,13 +145,13 @@ test('the user assertion verification fails with invalid credentials',
 );
 
 test('the assertion verification validation fails', function () {
-    [$response] = prepareAssertion(data: fn (array $data) => array_filter($data, fn ($key) => $key !== 'rawId', ARRAY_FILTER_USE_KEY));
+    [$response] = prepareAssertion(data: fn (array $data) => array_filter($data,
+        fn ($key) => $key !== 'rawId', ARRAY_FILTER_USE_KEY));
 
     $response->assertSessionHas(AssertionCeremony::OPTIONS_SESSION_KEY);
 
     $response->assertSessionHasErrors('rawId');
 });
-
 
 test('user can authenticate', function () {
     mockCreatesNewUsers();
@@ -184,7 +184,11 @@ test('user can authenticate', function () {
 
     $this->mock(AuthenticatorAttestationResponseValidator::class)
         ->shouldReceive('check')
-        ->withArgs([$publicKeyCredential->response, session()->get(AttestationCeremony::OPTIONS_SESSION_KEY), app('host')])
+        ->withArgs([
+            $publicKeyCredential->response,
+            session()->get(AttestationCeremony::OPTIONS_SESSION_KEY),
+            app('host'),
+        ])
         ->andReturn($publicKeyCredentialSource);
 
     $response = $this->post('/auth', [
@@ -228,10 +232,14 @@ test('user can authenticate', function () {
 //        $response->assertJsonValidationErrors(['email']);
 //    }
 
-test('auth attempts are throttled', function () {
-    $this->mock(AuthRateLimiter::class, function ($mock) {
-        $mock->shouldReceive('tooManyAttempts')->andReturn(true);
-        $mock->shouldReceive('availableIn')->andReturn(10);
+test('auth attestation attempts are throttled', function () {
+    $this->mock(RateLimiter::class, function ($mock) {
+        $mock->shouldReceive('tooManyAttempts')
+            ->withArgs(['attest:127.0.0.1', 5])
+            ->andReturn(true);
+        $mock->shouldReceive('availableIn')
+            ->withArgs(['attest:127.0.0.1'])
+            ->andReturn(10);
     });
 
     session()->put(AttestationCeremony::OPTIONS_SESSION_KEY, []);
@@ -247,9 +255,39 @@ test('auth attempts are throttled', function () {
     ]);
 
     $response->assertStatus(Response::HTTP_TOO_MANY_REQUESTS);
-    $response->assertJsonValidationErrors(['email']);
+    $response->assertContent(trans('auth.throttle', [
+        'seconds' => 10,
+        'minutes' => 1,
+    ]));
 });
 
+test('auth assertion attempts are throttled', function () {
+    $this->mock(RateLimiter::class, function ($mock) {
+        $mock->shouldReceive('tooManyAttempts')
+            ->withArgs(['auth:id|127.0.0.1', 5])
+            ->andReturn(true);
+
+        $mock->shouldReceive('availableIn')
+            ->withArgs(['auth:id|127.0.0.1'])
+            ->andReturn(10);
+    });
+
+    session()->put(AssertionCeremony::OPTIONS_SESSION_KEY, []);
+
+    $response = $this->postJson(route('auth'), [
+        'id' => 'id',
+        'rawId' => 'rawId',
+        'type' => 'public-key',
+        'response' => [
+            'clientDataJSON' => 'clientDataJSON',
+            'authenticatorData' => 'authenticatorData',
+            'signature' => 'signature',
+            'userHandle' => 'userHandle',
+        ],
+    ]);
+
+    $response->assertStatus(Response::HTTP_TOO_MANY_REQUESTS);
+});
 /**
  * @dataProvider usernameProvider
  */

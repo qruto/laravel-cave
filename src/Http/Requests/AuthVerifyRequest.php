@@ -13,7 +13,23 @@ class AuthVerifyRequest extends FormRequest
 
     protected AttestationCeremony $attestation;
 
-    protected Ceremony $type;
+    protected ?Ceremony $ceremony;
+
+    public function __construct(...$args)
+    {
+        parent::__construct(...$args);
+
+        $this->assertion = app(AssertionCeremony::class);
+        $this->attestation = app(AttestationCeremony::class);
+
+        if (session()->has($this->assertion::OPTIONS_SESSION_KEY)) {
+            $this->ceremony = Ceremony::Assertion;
+        }
+
+        if (session()->has($this->attestation::OPTIONS_SESSION_KEY)) {
+            $this->ceremony = Ceremony::Attestation;
+        }
+    }
 
     /**
      * Determine if the user is authorized to make this request.
@@ -22,22 +38,11 @@ class AuthVerifyRequest extends FormRequest
      */
     public function authorize()
     {
-        $this->assertion = app(AssertionCeremony::class);
-        $this->attestation = app(AttestationCeremony::class);
-
-        if ($this->session()->has($this->assertion::OPTIONS_SESSION_KEY)) {
-            $this->type = Ceremony::Assertion;
-
-            return true;
+        if (! $this->ceremony) {
+            return false;
         }
 
-        if ($this->session()->has($this->attestation::OPTIONS_SESSION_KEY)) {
-            $this->type = Ceremony::Attestation;
-
-            return true;
-        }
-
-        return false;
+        return true;
     }
 
     /**
@@ -45,27 +50,30 @@ class AuthVerifyRequest extends FormRequest
      */
     public function rules(): array
     {
-        switch ($this->type) {
-            case Ceremony::Assertion:
-                return [
-                    'id' => ['required', 'string'],
-                    'type' => ['required', 'string', 'in:public-key'],
-                    'rawId' => ['required', 'string'],
-                    'response.authenticatorData' => ['required', 'string'],
-                    'response.clientDataJSON' => ['required', 'string'],
-                    'response.signature' => ['required', 'string'],
-                    'response.userHandle' => ['sometimes', 'nullable'],
-                    'remember' => ['nullable', 'string'],
-                ];
-            case Ceremony::Attestation:
-                return [
-                    'id' => ['required', 'string'],
-                    'name' => ['nullable', 'string'],
-                    'type' => ['required', 'string', 'in:public-key'],
-                    'rawId' => ['required', 'string'],
-                    'response.clientDataJSON' => ['required', 'string'],
-                    'response.attestationObject' => ['required', 'string'],
-                ];
-        }
+        return match ($this->ceremony) {
+            Ceremony::Assertion => [
+                'id' => ['required', 'string'],
+                'type' => ['required', 'string', 'in:public-key'],
+                'rawId' => ['required', 'string'],
+                'response.authenticatorData' => ['required', 'string'],
+                'response.clientDataJSON' => ['required', 'string'],
+                'response.signature' => ['required', 'string'],
+                'response.userHandle' => ['sometimes', 'nullable'],
+                'remember' => ['nullable', 'string'],
+            ],
+            Ceremony::Attestation => [
+                'id' => ['required', 'string'],
+                'name' => ['nullable', 'string'],
+                'type' => ['required', 'string', 'in:public-key'],
+                'rawId' => ['required', 'string'],
+                'response.clientDataJSON' => ['required', 'string'],
+                'response.attestationObject' => ['required', 'string'],
+            ],
+        };
+    }
+
+    public function ceremony()
+    {
+        return $this->ceremony;
     }
 }
