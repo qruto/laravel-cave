@@ -5,12 +5,14 @@ namespace Qruto\Cave\Tests;
 use App\Models\User;
 use Hamcrest\Core\IsEqual;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Response;
 use Mockery\CompositeExpectation;
 use ParagonIE\ConstantTime\Base64UrlSafe;
 use Qruto\Cave\Authenticators\AssertionCeremony;
 use Qruto\Cave\Authenticators\AttestationCeremony;
 use Qruto\Cave\Challenge;
 use Qruto\Cave\Contracts\AuthViewResponse;
+use Qruto\Cave\AuthRateLimiter;
 use Qruto\Cave\Models\Passkey;
 use Webauthn\AuthenticatorAssertionResponse;
 use Webauthn\AuthenticatorAssertionResponseValidator;
@@ -142,7 +144,6 @@ test('the user assertion verification fails with invalid credentials',
     }
 );
 
-
 test('the assertion verification validation fails', function () {
     [$response] = prepareAssertion(data: fn (array $data) => array_filter($data, fn ($key) => $key !== 'rawId', ARRAY_FILTER_USE_KEY));
 
@@ -151,53 +152,19 @@ test('the assertion verification validation fails', function () {
     $response->assertSessionHasErrors('rawId');
 });
 
-/**
- * Prepares user, passkey, options needed for user assertion verification.
- *
- * @param  ?callable(\Mockery\CompositeExpectation): void  $validatorMock
- * @param  ?callable(array): array  $data
- * @return array{\Illuminate\Testing\TestResponse,\App\Models\User,string,\Webauthn\PublicKeyCredential,\Webauthn\PublicKeyCredential}
- */
-function prepareAssertion(callable $validatorMock = null, callable $data = null)
-{
-    $user = \App\Models\User::factory()->hasPasskeys(1, [
-        // TODO: change name
-        'name' => 'name',
-    ])->create([
-        'passkey_verified_at' => now(),
+
+test('user can authenticate', function () {
+    mockCreatesNewUsers();
+
+    $response = $this->post(route('auth.options'), [
+        'email' => 'rick@c137.planet',
     ]);
 
-    $assertion = app(AssertionCeremony::class);
-    $options = $assertion->newOptions($user);
-    $challenge = Challenge::fake();
-    $passkey = $user->passkeys->first();
-    $credentialId = $passkey->credential_id;
+    $response->assertStatus(Response::HTTP_CREATED);
 
-    $clientData = [
-        'type' => 'webauthn.get',
-        'challenge' => Base64UrlSafe::encodeUnpadded($challenge),
-        'origin' => app('host'),
-        'crossOrigin' => false,
-    ];
+    $credentialId = random_bytes(32);
 
-    $authData = random_bytes(32);
-
-    $authenticatorAttestationResponse = AuthenticatorAssertionResponse::create(
-        new CollectedClientData(
-            \base64_encode(json_encode($clientData)),
-            $clientData,
-        ),
-        new AuthenticatorData(
-            $authData,
-            $authData,
-            '',
-            0,
-            null,
-            null,
-        ),
-        'signature',
-        $user->id,
-    );
+    $authenticatorAttestationResponse = mock(AuthenticatorAttestationResponse::class);
 
     $publicKeyCredential = PublicKeyCredential::create(
         $credentialId,
@@ -206,193 +173,45 @@ function prepareAssertion(callable $validatorMock = null, callable $data = null)
         $authenticatorAttestationResponse
     );
 
-    app()->instance(
-        PublicKeyCredentialLoader::class,
-        mock(PublicKeyCredentialLoader::class)
-    )->shouldReceive('loadArray')->andReturn($publicKeyCredential);
+    $this->mock(PublicKeyCredentialLoader::class)
+        ->shouldReceive('loadArray')
+        ->andReturn($publicKeyCredential);
 
-    $publicKeyCredentialSource = $passkey->publicKeyCredentialSource();
+    $publicKeyCredentialSource = Passkey::factory()->make([
+        'user_id' => 1,
+        'credential_id' => $credentialId,
+    ])->publicKeyCredentialSource();
 
-    $validator = app()->instance(
-        AuthenticatorAssertionResponseValidator::class,
-        mock(AuthenticatorAssertionResponseValidator::class)
-    );
+    $this->mock(AuthenticatorAttestationResponseValidator::class)
+        ->shouldReceive('check')
+        ->withArgs([$publicKeyCredential->response, session()->get(AttestationCeremony::OPTIONS_SESSION_KEY), app('host')])
+        ->andReturn($publicKeyCredentialSource);
 
-    if ($validatorMock !== null) {
-        $validatorMock($validator->shouldReceive('check'));
-    } else {
-        $validator->shouldReceive('check')
-            ->with(
-                IsEqual::equalTo($publicKeyCredentialSource),
-                $publicKeyCredential->response,
-                $options,
-                app('host'),
-                (string) $user->id,
-            )
-            ->andReturn($publicKeyCredentialSource);
-    }
-
-    session()->put(
-        AssertionCeremony::OPTIONS_SESSION_KEY,
-        $options
-    );
-
-    $input = [
-        'id' => base64_encode($credentialId),
-        'rawId' => base64_encode($credentialId),
+    $response = $this->post('/auth', [
+        'id' => \base64_encode($credentialId),
+        'rawId' => \base64_encode($credentialId),
         'type' => 'public-key',
         'response' => [
-            'authenticatorData' => 'authenticatorData',
             'clientDataJSON' => 'clientDataJSON',
-            'signature' => 'signature',
-            'userHandle' => $user->id,
+            'attestationObject' => 'attestationObject',
         ],
-    ];
+    ], headers: [
+        'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_6_8) AppleWebKit/537.13+ (KHTML, like Gecko) Version/5.1.7 Safari/534.57.2',
+    ]);
 
-    return [
-        post(route('auth'), $data ? $data($input) : $input),
-        $user,
-        $credentialId,
-        $publicKeyCredential,
-    ];
-}
+    $response->assertSessionMissing(AttestationCeremony::OPTIONS_SESSION_KEY);
 
-//    public function test_user_can_authenticate()
-//    {
-//        TestAuthenticationSessionUser::forceCreate([
-//            'name' => 'Taylor Otwell',
-//            'email' => 'taylor@laravel.com',
-//            'password' => bcrypt('secret'),
-//        ]);
-//
-//        $response = $this->withoutExceptionHandling()->post('/login', [
-//            'email' => 'taylor@laravel.com',
-//            'password' => 'secret',
-//        ]);
-//
-//        $response->assertRedirect('/home');
-//    }
-//
-//    public function test_user_is_redirected_to_challenge_when_using_two_factor_authentication()
-//    {
-//        Event::fake();
-//
-//        app('config')->set('auth.providers.users.model', TestTwoFactorAuthenticationSessionUser::class);
-//
-//        TestTwoFactorAuthenticationSessionUser::forceCreate([
-//            'name' => 'Taylor Otwell',
-//            'email' => 'taylor@laravel.com',
-//            'password' => bcrypt('secret'),
-//            'two_factor_secret' => 'test-secret',
-//        ]);
-//
-//        $response = $this->withoutExceptionHandling()->post('/login', [
-//            'email' => 'taylor@laravel.com',
-//            'password' => 'secret',
-//        ]);
-//
-//        $response->assertRedirect('/two-factor-challenge');
-//
-//        Event::assertDispatched(TwoFactorAuthenticationChallenged::class);
-//    }
-//
-//    public function test_user_is_not_redirected_to_challenge_when_using_two_factor_authentication_that_has_not_been_confirmed_and_confirmation_is_enabled()
-//    {
-//        Event::fake();
-//
-//        app('config')->set('auth.providers.users.model', TestTwoFactorAuthenticationSessionUser::class);
-//        app('config')->set('fortify.features', [
-//            Features::registration(),
-//            Features::twoFactorAuthentication(['confirm' => true]),
-//        ]);
-//
-//        TestTwoFactorAuthenticationSessionUser::forceCreate([
-//            'name' => 'Taylor Otwell',
-//            'email' => 'taylor@laravel.com',
-//            'password' => bcrypt('secret'),
-//            'two_factor_secret' => 'test-secret',
-//        ]);
-//
-//        $response = $this->withoutExceptionHandling()->post('/login', [
-//            'email' => 'taylor@laravel.com',
-//            'password' => 'secret',
-//        ]);
-//
-//        $response->assertRedirect('/home');
-//    }
-//
-//    public function test_user_is_redirected_to_challenge_when_using_two_factor_authentication_that_has_been_confirmed_and_confirmation_is_enabled()
-//    {
-//        Event::fake();
-//
-//        app('config')->set('auth.providers.users.model', TestTwoFactorAuthenticationSessionUser::class);
-//        app('config')->set('fortify.features', [
-//            Features::registration(),
-//            Features::twoFactorAuthentication(['confirm' => true]),
-//        ]);
-//
-//        Schema::table('users', function ($table) {
-//            $table->timestamp('two_factor_confirmed_at')->nullable();
-//        });
-//
-//        TestTwoFactorAuthenticationSessionUser::forceCreate([
-//            'name' => 'Taylor Otwell',
-//            'email' => 'taylor@laravel.com',
-//            'password' => bcrypt('secret'),
-//            'two_factor_secret' => 'test-secret',
-//            'two_factor_confirmed_at' => now(),
-//        ]);
-//
-//        $response = $this->withoutExceptionHandling()->post('/login', [
-//            'email' => 'taylor@laravel.com',
-//            'password' => 'secret',
-//        ]);
-//
-//        $response->assertRedirect('/two-factor-challenge');
-//    }
-//
-//    public function test_user_can_authenticate_when_two_factor_challenge_is_disabled()
-//    {
-//        app('config')->set('auth.providers.users.model', TestTwoFactorAuthenticationSessionUser::class);
-//
-//        $features = app('config')->get('fortify.features');
-//
-//        unset($features[array_search(Features::twoFactorAuthentication(), $features)]);
-//
-//        app('config')->set('fortify.features', $features);
-//
-//        TestTwoFactorAuthenticationSessionUser::forceCreate([
-//            'name' => 'Taylor Otwell',
-//            'email' => 'taylor@laravel.com',
-//            'password' => bcrypt('secret'),
-//            'two_factor_secret' => 'test-secret',
-//        ]);
-//
-//        $response = $this->withoutExceptionHandling()->post('/login', [
-//            'email' => 'taylor@laravel.com',
-//            'password' => 'secret',
-//        ]);
-//
-//        $response->assertRedirect('/home');
-//    }
-//
-//    public function test_validation_exception_returned_on_failure()
-//    {
-//        TestAuthenticationSessionUser::forceCreate([
-//            'name' => 'Taylor Otwell',
-//            'email' => 'taylor@laravel.com',
-//            'password' => bcrypt('secret'),
-//        ]);
-//
-//        $response = $this->post('/login', [
-//            'email' => 'taylor@laravel.com',
-//            'password' => 'password',
-//        ]);
-//
-//        $response->assertStatus(302);
-//        $response->assertSessionHasErrors(['email']);
-//    }
-//
+    $this->assertDatabaseHas('passkeys', [
+        'user_id' => 1,
+        'credential_id' => Base64UrlSafe::encode($credentialId),
+        'name' => 'OS X (Safari)',
+    ]);
+
+    $response->assertRedirect('/home');
+
+    $this->assertAuthenticatedAs(User::first());
+});
+
 //    public function test_login_attempts_are_throttled()
 //    {
 //        $this->mock(LoginRateLimiter::class, function ($mock) {
@@ -408,6 +227,28 @@ function prepareAssertion(callable $validatorMock = null, callable $data = null)
 //        $response->assertStatus(429);
 //        $response->assertJsonValidationErrors(['email']);
 //    }
+
+test('auth attempts are throttled', function () {
+    $this->mock(AuthRateLimiter::class, function ($mock) {
+        $mock->shouldReceive('tooManyAttempts')->andReturn(true);
+        $mock->shouldReceive('availableIn')->andReturn(10);
+    });
+
+    session()->put(AttestationCeremony::OPTIONS_SESSION_KEY, []);
+
+    $response = $this->postJson(route('auth'), [
+        'id' => 'id',
+        'rawId' => 'rawId',
+        'type' => 'public-key',
+        'response' => [
+            'clientDataJSON' => 'clientDataJSON',
+            'attestationObject' => 'attestationObject',
+        ],
+    ]);
+
+    $response->assertStatus(Response::HTTP_TOO_MANY_REQUESTS);
+    $response->assertJsonValidationErrors(['email']);
+});
 
 /**
  * @dataProvider usernameProvider
@@ -625,7 +466,108 @@ function prepareAssertion(callable $validatorMock = null, callable $data = null)
 //        $response->assertRedirect('/home');
 //    }
 
-class TestAuthenticationSessionUser extends User
+/**
+ * Prepares user, passkey, options needed for user assertion verification.
+ *
+ * @param  ?callable(\Mockery\CompositeExpectation): void  $validatorMock
+ * @param  ?callable(array): array  $data
+ * @return array{\Illuminate\Testing\TestResponse,\App\Models\User,string,\Webauthn\PublicKeyCredential,\Webauthn\PublicKeyCredential}
+ */
+function prepareAssertion(callable $validatorMock = null, callable $data = null)
 {
-    protected $table = 'users';
+    $user = \App\Models\User::factory()->hasPasskeys(1, [
+        // TODO: change name
+        'name' => 'name',
+    ])->create([
+        'passkey_verified_at' => now(),
+    ]);
+
+    $assertion = app(AssertionCeremony::class);
+    $options = $assertion->newOptions($user);
+    $challenge = Challenge::fake();
+    $passkey = $user->passkeys->first();
+    $credentialId = $passkey->credential_id;
+
+    $clientData = [
+        'type' => 'webauthn.get',
+        'challenge' => Base64UrlSafe::encodeUnpadded($challenge),
+        'origin' => app('host'),
+        'crossOrigin' => false,
+    ];
+
+    $authData = random_bytes(32);
+
+    $authenticatorAttestationResponse = AuthenticatorAssertionResponse::create(
+        new CollectedClientData(
+            \base64_encode(json_encode($clientData)),
+            $clientData,
+        ),
+        new AuthenticatorData(
+            $authData,
+            $authData,
+            '',
+            0,
+            null,
+            null,
+        ),
+        'signature',
+        $user->id,
+    );
+
+    $publicKeyCredential = PublicKeyCredential::create(
+        $credentialId,
+        'public-key',
+        $credentialId,
+        $authenticatorAttestationResponse
+    );
+
+    app()->instance(
+        PublicKeyCredentialLoader::class,
+        mock(PublicKeyCredentialLoader::class)
+    )->shouldReceive('loadArray')->andReturn($publicKeyCredential);
+
+    $publicKeyCredentialSource = $passkey->publicKeyCredentialSource();
+
+    $validator = app()->instance(
+        AuthenticatorAssertionResponseValidator::class,
+        mock(AuthenticatorAssertionResponseValidator::class)
+    );
+
+    if ($validatorMock !== null) {
+        $validatorMock($validator->shouldReceive('check'));
+    } else {
+        $validator->shouldReceive('check')
+            ->with(
+                IsEqual::equalTo($publicKeyCredentialSource),
+                $publicKeyCredential->response,
+                $options,
+                app('host'),
+                (string) $user->id,
+            )
+            ->andReturn($publicKeyCredentialSource);
+    }
+
+    session()->put(
+        AssertionCeremony::OPTIONS_SESSION_KEY,
+        $options
+    );
+
+    $input = [
+        'id' => base64_encode($credentialId),
+        'rawId' => base64_encode($credentialId),
+        'type' => 'public-key',
+        'response' => [
+            'authenticatorData' => 'authenticatorData',
+            'clientDataJSON' => 'clientDataJSON',
+            'signature' => 'signature',
+            'userHandle' => $user->id,
+        ],
+    ];
+
+    return [
+        post(route('auth'), $data ? $data($input) : $input),
+        $user,
+        $credentialId,
+        $publicKeyCredential,
+    ];
 }

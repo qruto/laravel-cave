@@ -16,21 +16,9 @@ beforeEach(function () {
     mockCreatesNewUsers();
 });
 
-function mockCreatesNewUsers(): void
-{
-    app()->instance(CreatesNewUsers::class,
-        new class implements CreatesNewUsers
-        {
-            public function create(array $input, AuthUser $user): AuthUser
-            {
-                return $user->fill(['name' => $input['name']]);
-            }
-        });
-}
-
 it('creates a new user on auth request', function () {
     $this->post('auth/options',
-        ['email' => 'rick@unity.io', 'name' => 'Rick Sanchez']);
+        ['email' => 'rick@unity.io']);
 
     expect(User::where('email', 'rick@unity.io')->exists())->toBeTrue();
 });

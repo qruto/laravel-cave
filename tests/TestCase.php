@@ -13,7 +13,8 @@ abstract class TestCase extends OrchestraTestCase
 
     protected function defineEnvironment($app)
     {
-        $app['config']->set(['database.default' => 'testing']);
+        config()->set(['database.default' => 'testing']);
+        config()->set('cave.limiters', []);
     }
 
     protected function withConfirmedTwoFactorAuthentication($app)

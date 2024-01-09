@@ -11,6 +11,8 @@
 |
 */
 
+use Qruto\Cave\Contracts\CreatesNewUsers;
+use Qruto\Cave\Models\User as AuthUser;
 use Qruto\Cave\Tests\TestCase;
 
 uses(TestCase::class)->in(__DIR__);
@@ -37,7 +39,15 @@ uses(TestCase::class)->in(__DIR__);
 |
 */
 
-function something()
+function mockCreatesNewUsers(): void
 {
-    // ..
+    app()->instance(CreatesNewUsers::class,
+        new class implements CreatesNewUsers
+        {
+            public function create(array $input, AuthUser $user): AuthUser
+            {
+                // Chose how to fill user name / recommend to remove it
+                return $user->fill(['name' => 'Rick Sanchez']);
+            }
+        });
 }

@@ -36,6 +36,7 @@ class Attestation implements AttestationCeremony
             PublicKeyCredentialUserEntity::create(
                 $user->{Cave::username()},
                 $user->getAuthIdentifier(),
+                // TODO: make it able to change display name property
                 $user->{Cave::username()},
                 // TODO: create icon
                 null,

@@ -6,7 +6,7 @@ use Illuminate\Cache\RateLimiter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
-class LoginRateLimiter
+class AuthRateLimiter
 {
     /**
      * The login rate limiter instance.

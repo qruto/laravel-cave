@@ -14,7 +14,7 @@ use Qruto\Cave\Authenticators\Attestation;
 use Qruto\Cave\Authenticators\InvalidAuthenticatorResponseException;
 use Qruto\Cave\Cave;
 use Qruto\Cave\Http\Requests\AuthVerifyRequest;
-use Qruto\Cave\LoginRateLimiter;
+use Qruto\Cave\AuthRateLimiter;
 use Qruto\Cave\Models\Passkey;
 use Throwable;
 use Webauthn\Exception\AuthenticatorResponseVerificationException;
@@ -36,7 +36,7 @@ class AttemptToAuthenticate
         /**
          * The login rate limiter instance.
          */
-        protected readonly LoginRateLimiter $limiter,
+        protected readonly AuthRateLimiter $limiter,
         protected readonly Attestation $attestation,
         protected readonly Assertion $assertion
     ) {
@@ -146,6 +146,7 @@ class AttemptToAuthenticate
      */
     protected function fireFailedEvent($request)
     {
+        // TODO: fire all events
         event(new Failed(config('cave.guard'), null, [
             Cave::username() => $request->{Cave::username()},
             'password' => $request->password,

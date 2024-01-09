@@ -66,7 +66,7 @@ class AuthenticatedSessionController extends Controller
         }
 
         return (new Pipeline(app()))->send($request)->through(array_filter([
-            config('cave.limiters.login') ? null : EnsureLoginIsNotThrottled::class,
+            config('cave.limiters.auth') ? null : EnsureLoginIsNotThrottled::class,
             config('cave.lowercase_usernames') ? CanonicalizeUsername::class : null,
             AttemptToAuthenticate::class,
             PrepareAuthenticatedSession::class,

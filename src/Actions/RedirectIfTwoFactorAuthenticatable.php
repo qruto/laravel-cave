@@ -7,7 +7,7 @@ use Illuminate\Contracts\Auth\StatefulGuard;
 use Illuminate\Validation\ValidationException;
 use Qruto\Cave\Events\TwoFactorAuthenticationChallenged;
 use Qruto\Cave\Cave;
-use Qruto\Cave\LoginRateLimiter;
+use Qruto\Cave\AuthRateLimiter;
 use Qruto\Cave\TwoFactorAuthenticatable;
 
 class RedirectIfTwoFactorAuthenticatable
@@ -22,7 +22,7 @@ class RedirectIfTwoFactorAuthenticatable
     /**
      * The login rate limiter instance.
      *
-     * @var \Qruto\Cave\LoginRateLimiter
+     * @var \Qruto\Cave\AuthRateLimiter
      */
     protected $limiter;
 
@@ -30,10 +30,10 @@ class RedirectIfTwoFactorAuthenticatable
      * Create a new controller instance.
      *
      * @param  \Illuminate\Contracts\Auth\StatefulGuard  $guard
-     * @param  \Qruto\Cave\LoginRateLimiter  $limiter
+     * @param  \Qruto\Cave\AuthRateLimiter  $limiter
      * @return void
      */
-    public function __construct(StatefulGuard $guard, LoginRateLimiter $limiter)
+    public function __construct(StatefulGuard $guard, AuthRateLimiter $limiter)
     {
         $this->guard = $guard;
         $this->limiter = $limiter;
