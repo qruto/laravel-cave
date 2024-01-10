@@ -2,11 +2,10 @@
 
 namespace Qruto\Cave;
 
-use Illuminate\Cache\RateLimiter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
-class AuthOptionsRateLimiter extends AuthRateLimiter
+class AuthOptionsVerificationRateLimiter extends AuthVerificationRateLimiter
 {
     /** Get the throttle key for the given request. */
     protected function throttleKey(Request $request): string

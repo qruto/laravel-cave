@@ -12,9 +12,9 @@ use Qruto\Cave\Agent;
 use Qruto\Cave\Authenticators\Assertion;
 use Qruto\Cave\Authenticators\Attestation;
 use Qruto\Cave\Authenticators\InvalidAuthenticatorResponseException;
+use Qruto\Cave\AuthRateLimiter;
 use Qruto\Cave\Cave;
 use Qruto\Cave\Http\Requests\AuthVerifyRequest;
-use Qruto\Cave\AuthRateLimiter;
 use Qruto\Cave\Models\Passkey;
 use Throwable;
 use Webauthn\Exception\AuthenticatorResponseVerificationException;
@@ -87,7 +87,12 @@ class AttemptToAuthenticate
                 }
 
                 // TODO: abstract passkey model
-                Passkey::createFromSource($publicKeyCredentialSource, $user, $name);
+                Passkey::createFromSource(
+                    $publicKeyCredentialSource,
+                    $user,
+                    $name
+                );
+
                 $user->passkey_verified_at = now();
                 $user->save();
 
@@ -174,6 +179,7 @@ class AttemptToAuthenticate
             throw new $exception(trans('auth.failed'));
         }
 
-        throw new AuthenticationException(trans('auth.failed'), [$this->guard->name], route('auth'));
+        throw new AuthenticationException(trans('auth.failed'),
+            [$this->guard->name], route('auth'));
     }
 }

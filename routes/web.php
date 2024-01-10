@@ -28,21 +28,18 @@ if (Cave::$registersRoutes) {
                 $verificationLimiter = config('cave.limiters.verification',
                     '6,1');
 
-                Route::post(RoutePath::for('auth', '/auth').'/options',
-                    [AuthenticatedSessionOptionsController::class, 'store'])
-                    ->middleware(array_filter([
-                        'guest:'.config('cave.guard'),
-                        $limiter ? 'throttle:'.$limiter : null,
-                ]))->name('auth.options');
+                Route::post(RoutePath::for('auth', '/auth').'/options', [
+                    AuthenticatedSessionOptionsController::class, 'store'
+                ])->middleware(['guest:'.config('cave.guard')])
+                    ->name('auth.options');
 
                 //
                 Route::post(RoutePath::for('auth', '/auth'),
-                    [AuthenticatedSessionController::class, 'store'])
-                    ->middleware(array_filter([
-                        'guest:'.config('cave.guard'),
-                        // TODO: check same limiter usage
-                        $limiter ? 'throttle:'.$limiter : null,
-                    ]));
+                    [AuthenticatedSessionController::class, 'store']
+                )->middleware(array_filter([
+                    'guest:'.config('cave.guard'),
+                    $limiter ? 'throttle:'.$limiter : null,
+                ]));
 
                 Route::post(RoutePath::for('logout', '/logout'), [AuthenticatedSessionController::class, 'destroy'])
                     ->name('logout');

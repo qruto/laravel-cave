@@ -3,22 +3,22 @@
 namespace Qruto\Cave\Actions;
 
 use Illuminate\Auth\Events\Lockout;
-use Qruto\Cave\Contracts\LockoutResponse;
 use Qruto\Cave\AuthRateLimiter;
+use Qruto\Cave\Contracts\LockoutResponse;
 
-class EnsureLoginIsNotThrottled
+class EnsureAuthIsNotThrottled
 {
     /**
      * The login rate limiter instance.
      *
-     * @var \Qruto\Cave\AuthRateLimiter
+     * @var \Qruto\Cave\AuthVerificationRateLimiter
      */
     protected $limiter;
 
     /**
      * Create a new class instance.
      *
-     * @param  \Qruto\Cave\AuthRateLimiter  $limiter
+     * @param  \Qruto\Cave\AuthVerificationRateLimiter  $limiter
      * @return void
      */
     public function __construct(AuthRateLimiter $limiter)

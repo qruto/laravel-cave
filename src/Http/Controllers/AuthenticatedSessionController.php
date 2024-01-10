@@ -3,13 +3,15 @@
 namespace Qruto\Cave\Http\Controllers;
 
 use Illuminate\Contracts\Auth\StatefulGuard;
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Routing\Pipeline;
 use Qruto\Cave\Actions\AttemptToAuthenticate;
-use Qruto\Cave\Actions\CanonicalizeUsername;
-use Qruto\Cave\Actions\EnsureLoginIsNotThrottled;
+use Qruto\Cave\Actions\EnsureAuthIsNotThrottled;
 use Qruto\Cave\Actions\PrepareAuthenticatedSession;
+use Qruto\Cave\AuthRateLimiter;
+use Qruto\Cave\AuthVerificationRateLimiter;
 use Qruto\Cave\Cave;
 use Qruto\Cave\Contracts\AuthResponse;
 use Qruto\Cave\Contracts\AuthViewResponse;
@@ -21,8 +23,11 @@ class AuthenticatedSessionController extends Controller
     /** Create a new controller instance. */
     public function __construct(
         /** The guard implementation. */
-        protected StatefulGuard $guard
+        protected readonly StatefulGuard $guard,
+        protected readonly Container $container,
     ) {
+        $this->container->bind(AuthRateLimiter::class,
+            AuthVerificationRateLimiter::class);
     }
 
     /**
@@ -54,20 +59,19 @@ class AuthenticatedSessionController extends Controller
         AuthVerifyRequest $request
     ) {
         if (Cave::$authenticateThroughCallback) {
-            return (new Pipeline(app()))->send($request)->through(array_filter(
+            return (new Pipeline($this->container))->send($request)->through(array_filter(
                 call_user_func(Cave::$authenticateThroughCallback, $request)
             ));
         }
 
-        if (is_array(config('cave.pipelines.login'))) {
-            return (new Pipeline(app()))->send($request)->through(array_filter(
-                config('cave.pipelines.login')
+        if (is_array(config('cave.pipelines.auth'))) {
+            return (new Pipeline($this->container))->send($request)->through(array_filter(
+                config('cave.pipelines.auth')
             ));
         }
 
-        return (new Pipeline(app()))->send($request)->through(array_filter([
-            config('cave.limiters.auth') ? null : EnsureLoginIsNotThrottled::class,
-            config('cave.lowercase_usernames') ? CanonicalizeUsername::class : null,
+        return (new Pipeline($this->container))->send($request)->through(array_filter([
+            config('cave.limiters.auth') ? null : EnsureAuthIsNotThrottled::class,
             AttemptToAuthenticate::class,
             PrepareAuthenticatedSession::class,
         ]));
