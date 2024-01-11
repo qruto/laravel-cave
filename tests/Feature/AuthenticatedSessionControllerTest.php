@@ -11,9 +11,13 @@ use Mockery\CompositeExpectation;
 use ParagonIE\ConstantTime\Base64UrlSafe;
 use Qruto\Cave\Authenticators\AssertionCeremony;
 use Qruto\Cave\Authenticators\AttestationCeremony;
+use Qruto\Cave\AuthVerificationRateLimiter;
+use Qruto\Cave\Ceremony;
 use Qruto\Cave\Challenge;
 use Qruto\Cave\Contracts\AuthViewResponse;
+use Qruto\Cave\Http\Requests\AuthVerifyRequest;
 use Qruto\Cave\Models\Passkey;
+use ReflectionClass;
 use Webauthn\AuthenticatorAssertionResponse;
 use Webauthn\AuthenticatorAssertionResponseValidator;
 use Webauthn\AuthenticatorAttestationResponse;
@@ -288,203 +292,60 @@ test('auth assertion attempts are throttled', function () {
 
     $response->assertStatus(Response::HTTP_TOO_MANY_REQUESTS);
 });
-/**
- * @dataProvider usernameProvider
- */
-//    public function test_cant_bypass_throttle_with_special_characters(string $username, string $expectedResult)
-//    {
-//        $loginRateLimiter = new LoginRateLimiter(
-//            $this->mock(RateLimiter::class)
-//        );
-//
-//        $reflection = new \ReflectionClass($loginRateLimiter);
-//        $method = $reflection->getMethod('throttleKey');
-//        $method->setAccessible(true);
-//
-//        $request = $this->mock(
-//            Request::class,
-//            static function ($mock) use ($username) {
-//                $mock->shouldReceive('input')->andReturn($username);
-//                $mock->shouldReceive('ip')->andReturn('192.168.0.1');
-//            }
-//        );
-//
-//        self::assertSame($expectedResult.'|192.168.0.1', $method->invoke($loginRateLimiter, $request));
-//    }
-//
-//    public function usernameProvider(): array
-//    {
-//        return [
-//            'lowercase special characters' => ['ⓣⓔⓢⓣ@ⓛⓐⓡⓐⓥⓔⓛ.ⓒⓞⓜ', 'test@laravel.com'],
-//            'uppercase special characters' => ['ⓉⒺⓈⓉ@ⓁⒶⓇⒶⓋⒺⓁ.ⒸⓄⓂ', 'test@laravel.com'],
-//            'special character numbers' =>['test⑩⓸③@laravel.com', 'test1043@laravel.com'],
-//            'default email' => ['test@laravel.com', 'test@laravel.com'],
-//        ];
-//    }
-//
-//    public function test_the_user_can_logout_of_the_application()
-//    {
-//        Auth::guard()->setUser(
-//            Mockery::mock(Authenticatable::class)->shouldIgnoreMissing()
-//        );
-//
-//        $response = $this->post('/logout');
-//
-//        $response->assertRedirect('/');
-//        $this->assertNull(Auth::guard()->getUser());
-//    }
-//
-//    public function test_the_user_can_logout_of_the_application_using_json_request()
-//    {
-//        Auth::guard()->setUser(
-//            Mockery::mock(Authenticatable::class)->shouldIgnoreMissing()
-//        );
-//
-//        $response = $this->postJson('/logout');
-//
-//        $response->assertStatus(204);
-//        $this->assertNull(Auth::guard()->getUser());
-//    }
-//
-//    public function test_two_factor_challenge_can_be_passed_via_code()
-//    {
-//        app('config')->set('auth.providers.users.model', TestTwoFactorAuthenticationSessionUser::class);
-//
-//        $tfaEngine = app(Google2FA::class);
-//        $userSecret = $tfaEngine->generateSecretKey();
-//        $validOtp = $tfaEngine->getCurrentOtp($userSecret);
-//
-//        $user = TestTwoFactorAuthenticationSessionUser::forceCreate([
-//            'name' => 'Taylor Otwell',
-//            'email' => 'taylor@laravel.com',
-//            'password' => bcrypt('secret'),
-//            'two_factor_secret' => encrypt($userSecret),
-//        ]);
-//
-//        $response = $this->withSession([
-//            'login.id' => $user->id,
-//            'login.remember' => false,
-//        ])->withoutExceptionHandling()->post('/two-factor-challenge', [
-//            'code' => $validOtp,
-//        ]);
-//
-//        $response->assertRedirect('/home')
-//            ->assertSessionMissing('login.id');
-//    }
-//
-//    public function test_two_factor_authentication_preserves_remember_me_selection(): void
-//    {
-//        Event::fake();
-//
-//        app('config')->set('auth.providers.users.model', TestTwoFactorAuthenticationSessionUser::class);
-//
-//        TestTwoFactorAuthenticationSessionUser::forceCreate([
-//            'name' => 'Taylor Otwell',
-//            'email' => 'taylor@laravel.com',
-//            'password' => bcrypt('secret'),
-//            'two_factor_secret' => 'test-secret',
-//        ]);
-//
-//        $response = $this->withoutExceptionHandling()->post('/login', [
-//            'email' => 'taylor@laravel.com',
-//            'password' => 'secret',
-//            'remember' => false,
-//        ]);
-//
-//        $response->assertRedirect('/two-factor-challenge')
-//            ->assertSessionHas('login.remember', false);
-//    }
-//
-//    public function test_two_factor_challenge_fails_for_old_otp_and_zero_window()
-//    {
-//        app('config')->set('auth.providers.users.model', TestTwoFactorAuthenticationSessionUser::class);
-//
-//        //Setting window to 0 should mean any old OTP is instantly invalid
-//        app('config')->set('fortify.features', [
-//            Features::twoFactorAuthentication(['window' => 0]),
-//        ]);
-//
-//        $tfaEngine = app(Google2FA::class);
-//        $userSecret = $tfaEngine->generateSecretKey();
-//        $currentTs = $tfaEngine->getTimestamp();
-//        $previousOtp = $tfaEngine->oathTotp($userSecret, $currentTs - 1);
-//
-//        $user = TestTwoFactorAuthenticationSessionUser::forceCreate([
-//            'name' => 'Taylor Otwell',
-//            'email' => 'taylor@laravel.com',
-//            'password' => bcrypt('secret'),
-//            'two_factor_secret' => encrypt($userSecret),
-//        ]);
-//
-//        $response = $this->withSession([
-//            'login.id' => $user->id,
-//            'login.remember' => false,
-//        ])->withoutExceptionHandling()->post('/two-factor-challenge', [
-//            'code' => $previousOtp,
-//        ]);
-//
-//        $response->assertRedirect('/two-factor-challenge')
-//                 ->assertSessionHas('login.id')
-//                 ->assertSessionHasErrors(['code']);
-//    }
-//
-//    public function test_two_factor_challenge_can_be_passed_via_recovery_code()
-//    {
-//        app('config')->set('auth.providers.users.model', TestTwoFactorAuthenticationSessionUser::class);
-//
-//        $user = TestTwoFactorAuthenticationSessionUser::forceCreate([
-//            'name' => 'Taylor Otwell',
-//            'email' => 'taylor@laravel.com',
-//            'password' => bcrypt('secret'),
-//            'two_factor_recovery_codes' => encrypt(json_encode(['invalid-code', 'valid-code'])),
-//        ]);
-//
-//        $response = $this->withSession([
-//            'login.id' => $user->id,
-//            'login.remember' => false,
-//        ])->withoutExceptionHandling()->post('/two-factor-challenge', [
-//            'recovery_code' => 'valid-code',
-//        ]);
-//
-//        $response->assertRedirect('/home')
-//            ->assertSessionMissing('login.id');
-//        $this->assertNotNull(Auth::getUser());
-//        $this->assertNotContains('valid-code', json_decode(decrypt($user->fresh()->two_factor_recovery_codes), true));
-//    }
-//
-//    public function test_two_factor_challenge_can_fail_via_recovery_code()
-//    {
-//        app('config')->set('auth.providers.users.model', TestTwoFactorAuthenticationSessionUser::class);
-//
-//        $user = TestTwoFactorAuthenticationSessionUser::forceCreate([
-//            'name' => 'Taylor Otwell',
-//            'email' => 'taylor@laravel.com',
-//            'password' => bcrypt('secret'),
-//            'two_factor_recovery_codes' => encrypt(json_encode(['invalid-code', 'valid-code'])),
-//        ]);
-//
-//        $response = $this->withSession([
-//            'login.id' => $user->id,
-//            'login.remember' => false,
-//        ])->withoutExceptionHandling()->post('/two-factor-challenge', [
-//            'recovery_code' => 'missing-code',
-//        ]);
-//
-//        $response->assertRedirect('/two-factor-challenge')
-//            ->assertSessionHas('login.id')
-//            ->assertSessionHasErrors(['recovery_code']);
-//        $this->assertNull(Auth::getUser());
-//    }
-//
-//    public function test_two_factor_challenge_requires_a_challenged_user()
-//    {
-//        app('config')->set('auth.providers.users.model', TestTwoFactorAuthenticationSessionUser::class);
-//
-//        $response = $this->withSession([])->withoutExceptionHandling()->get('/two-factor-challenge');
-//
-//        $response->assertRedirect('/login');
-//        $this->assertNull(Auth::getUser());
-//    }
+
+//$usernames = [
+//    'lowercase special characters' => ['ⓣⓔⓢⓣ@ⓛⓐⓡⓐⓥⓔⓛ.ⓒⓞⓜ', 'test@laravel.com'],
+//    'uppercase special characters' => ['ⓉⒺⓈⓉ@ⓁⒶⓇⒶⓋⒺⓁ.ⒸⓄⓂ', 'test@laravel.com'],
+//    'special character numbers' => [
+//        'test⑩⓸③@laravel.com', 'test1043@laravel.com',
+//    ],
+//    'default email' => ['test@laravel.com', 'test@laravel.com'],
+//];
+
+test('cant bypass throttle with special characters',
+    function () {
+        $authRateLimiter = new AuthVerificationRateLimiter(mock(RateLimiter::class));
+
+        $reflection = new ReflectionClass($authRateLimiter);
+        $method = $reflection->getMethod('throttleKey');
+        $method->setAccessible(true);
+
+        $request = $this->mock(
+            AuthVerifyRequest::class,
+            static function ($mock) {
+                $mock->shouldReceive('input')->andReturn('id');
+                $mock->shouldReceive('ip')->andReturn('127.0.0.1');
+                $mock->shouldReceive('ceremony')->andReturn(Ceremony::Assertion);
+            }
+        );
+
+        expect($method->invoke($authRateLimiter,
+            $request))->toBe('auth:id|127.0.0.1');
+    });
+
+test('the user can logout of the application', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user);
+
+    $response = $this->post('/logout');
+
+    $response->assertRedirect('/');
+
+    $this->assertGuest();
+});
+
+test('the user can logout of the application using json request', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user);
+
+    $response = $this->postJson('/logout');
+
+    $response->assertStatus(Response::HTTP_NO_CONTENT);
+
+    $this->assertGuest();
+});
 
 //    public function test_case_insensitive_usernames_can_be_used()
 //    {

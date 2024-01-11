@@ -18,9 +18,9 @@ class AuthenticatedSessionOptionsController
      * Create a new controller instance.
      */
     public function __construct(
-        readonly Container $app,
+        protected readonly Container $container,
     ) {
-        $app->bind(
+        $this->container->bind(
             AuthRateLimiter::class,
             AuthOptionsVerificationRateLimiter::class
         );
@@ -29,7 +29,8 @@ class AuthenticatedSessionOptionsController
     public function store(AuthOptionsRequest $request)
     {
         // TODO: custom response
-        return $this->authOptionsPipeline($request)->then(fn ($response) => $response);
+        return $this->authOptionsPipeline($request)->then(fn ($response
+        ) => $response);
     }
 
     protected function authOptionsPipeline(
@@ -37,12 +38,12 @@ class AuthenticatedSessionOptionsController
     ) {
         // TODO: change custom auth pipeline handling
         if (Cave::$authenticateThroughCallback) {
-            return (new Pipeline(app()))->send($request)->through(array_filter(
+            return (new Pipeline($this->container))->send($request)->through(array_filter(
                 call_user_func(Cave::$authenticateThroughCallback, $request)
             ));
         }
 
-        return (new Pipeline(app()))->send($request)->through(array_filter([
+        return (new Pipeline($this->container))->send($request)->through(array_filter([
             // TODO: change custom auth pipeline handling
             config('cave.limiters.auth') ? null : EnsureAuthIsNotThrottled::class,
             config('cave.lowercase_usernames') ? CanonicalizeUsername::class : null,
