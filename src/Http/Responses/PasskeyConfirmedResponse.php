@@ -3,10 +3,10 @@
 namespace Qruto\Cave\Http\Responses;
 
 use Illuminate\Http\JsonResponse;
-use Qruto\Cave\Contracts\PasswordConfirmedResponse as PasswordConfirmedResponseContract;
 use Qruto\Cave\Cave;
+use Qruto\Cave\Contracts\PasskeyConfirmedResponse as PasswordConfirmedResponseContract;
 
-class PasswordConfirmedResponse implements PasswordConfirmedResponseContract
+class PasskeyConfirmedResponse implements PasswordConfirmedResponseContract
 {
     /**
      * Create an HTTP response that represents the object.
@@ -17,7 +17,7 @@ class PasswordConfirmedResponse implements PasswordConfirmedResponseContract
     public function toResponse($request)
     {
         return $request->wantsJson()
-                    ? new JsonResponse('', 201)
-                    : redirect()->intended(Cave::redirects('password-confirmation'));
+            ? new JsonResponse('', 201)
+            : redirect()->intended(Cave::redirects('passkey-confirmation'));
     }
 }

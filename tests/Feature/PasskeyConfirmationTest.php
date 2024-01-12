@@ -3,6 +3,7 @@
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
+use Qruto\Cave\Authenticators\AssertionCeremony;
 use Qruto\Cave\Cave;
 use Qruto\Cave\Contracts\ConfirmPasskeyViewResponse;
 use Webauthn\PublicKeyCredentialRequestOptions;
@@ -45,14 +46,40 @@ it('passes options to the view', function () {
 });
 
 it('can be confirmed with a valid credentials', function () {
-    $response = $this->withoutExceptionHandling()
-        ->actingAs($this->user)
+    $user = User::factory()->hasPasskeys()->create();
+
+    $passkey = $user->passkeys()->first();
+
+    $assertion = app(AssertionCeremony::class);
+
+    $options = $assertion->newOptions($user);
+
+    session()->put(AssertionCeremony::OPTIONS_SESSION_KEY, $options);
+
+    $credentials = [
+        'id' => base64_encode($passkey->credential_id),
+        'rawId' => base64_encode($passkey->credential_id),
+        'type' => 'public-key',
+        'response' => [
+            'authenticatorData' => 'authenticatorData',
+            'clientDataJSON' => 'clientDataJSON',
+            'signature' => 'signature',
+            'userHandle' => 'userHandle',
+        ],
+    ];
+
+    $this->mock(AssertionCeremony::class)
+        ->shouldReceive('verify')
+        ->withArgs([$credentials, $options])
+        ->andReturn($passkey->publicKeyCredentialSource());
+
+    $response = actingAs($user)
         ->withSession(['url.intended' => 'http://foo.com/bar'])
         ->post(
             '/user/confirm-passkey',
-
+            $credentials
         );
 
-    $response->assertSessionHas('auth.password_confirmed_at');
+    $response->assertSessionHas('auth.passkey_confirmed_at');
     $response->assertRedirect('http://foo.com/bar');
 });

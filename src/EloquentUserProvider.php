@@ -6,7 +6,7 @@ use Illuminate\Auth\EloquentUserProvider as BaseEloquentUserProvider;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Hashing\Hasher;
 use ParagonIE\ConstantTime\Base64UrlSafe;
-use Qruto\Cave\Authenticators\Assertion;
+use Qruto\Cave\Authenticators\AssertionCeremony;
 use Qruto\Cave\Models\Passkey;
 use Throwable;
 use Webauthn\Util\Base64;
@@ -14,7 +14,7 @@ use Webauthn\Util\Base64;
 class EloquentUserProvider extends BaseEloquentUserProvider
 {
     public function __construct(
-        private Assertion $assertion,
+        private AssertionCeremony $assertion,
         Hasher $hasher,
         $model
     ) {

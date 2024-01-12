@@ -5,10 +5,11 @@ namespace Qruto\Cave\Http\Controllers;
 use Illuminate\Contracts\Auth\StatefulGuard;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Qruto\Cave\Actions\ConfirmPassword;
+use Qruto\Cave\Actions\ConfirmPasskey;
 use Qruto\Cave\Contracts\ConfirmPasskeyViewResponse;
-use Qruto\Cave\Contracts\FailedPasswordConfirmationResponse;
-use Qruto\Cave\Contracts\PasswordConfirmedResponse;
+use Qruto\Cave\Contracts\FailedPasskeyConfirmationResponse;
+use Qruto\Cave\Contracts\PasskeyConfirmedResponse;
+use Qruto\Cave\Http\Requests\AuthAssertionVerifyRequest;
 
 class ConfirmablePasswordController extends Controller
 {
@@ -40,10 +41,10 @@ class ConfirmablePasswordController extends Controller
      *
      * @return \Illuminate\Contracts\Support\Responsable
      */
-    public function store(Request $request)
+    public function store(AuthAssertionVerifyRequest $request)
     {
-        $confirmed = app(ConfirmPassword::class)(
-            $this->guard, $request->user(), $request->input('password')
+        $confirmed = app(ConfirmPasskey::class)(
+            $this->guard, $request->user(), $request->validated()
         );
 
         if ($confirmed) {
@@ -51,7 +52,7 @@ class ConfirmablePasswordController extends Controller
         }
 
         return $confirmed
-            ? app(PasswordConfirmedResponse::class)
-            : app(FailedPasswordConfirmationResponse::class);
+            ? app(PasskeyConfirmedResponse::class)
+            : app(FailedPasskeyConfirmationResponse::class);
     }
 }

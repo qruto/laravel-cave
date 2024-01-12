@@ -57,23 +57,24 @@ if (Cave::$registersRoutes) {
                         ]);
                 }
 
-                Route::get(RoutePath::for('password.confirmation',
-                    '/user/confirmed-password-status'),
-                    [ConfirmedPasswordStatusController::class, 'show'])
-                    ->middleware([
-                        config('cave.auth_middleware',
-                            'auth').':'.config('cave.guard'),
-                    ])
-                    ->name('password.confirmation');
+                Route::post(
+                    RoutePath::for('password.confirm', '/user/confirm-passkey'),
+                    [ConfirmablePasswordController::class, 'store']
+                )->middleware([
+                    config(
+                        'cave.auth_middleware',
+                        'auth'
+                    ).':'.config('cave.guard'),
+                ])->name('passkey.confirm');
 
-                Route::post(RoutePath::for('password.confirm',
-                    '/user/confirm-password'),
-                    [ConfirmablePasswordController::class, 'store'])
-                    ->middleware([
-                        config('cave.auth_middleware',
-                            'auth').':'.config('cave.guard'),
-                    ])
-                    ->name('password.confirm');
+                //                Route::get(RoutePath::for('password.confirmation',
+                //                    '/user/confirmed-password-status'),
+                //                    [ConfirmedPasswordStatusController::class, 'show'])
+                //                    ->middleware([
+                //                        config('cave.auth_middleware',
+                //                            'auth').':'.config('cave.guard'),
+                //                    ])
+                //                    ->name('password.confirmation');
                 //    // Email Verification...
                 //    if (Features::enabled(Features::emailVerification())) {
                 //        if ($enableViews) {

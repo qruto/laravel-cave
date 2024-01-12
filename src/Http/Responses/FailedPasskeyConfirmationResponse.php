@@ -3,9 +3,9 @@
 namespace Qruto\Cave\Http\Responses;
 
 use Illuminate\Validation\ValidationException;
-use Qruto\Cave\Contracts\FailedPasswordConfirmationResponse as FailedPasswordConfirmationResponseContract;
+use Qruto\Cave\Contracts\FailedPasskeyConfirmationResponse as FailedPasswordConfirmationResponseContract;
 
-class FailedPasswordConfirmationResponse implements FailedPasswordConfirmationResponseContract
+class FailedPasskeyConfirmationResponse implements FailedPasswordConfirmationResponseContract
 {
     /**
      * Create an HTTP response that represents the object.

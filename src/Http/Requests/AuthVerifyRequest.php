@@ -51,16 +51,7 @@ class AuthVerifyRequest extends FormRequest
     public function rules(): array
     {
         return match ($this->ceremony) {
-            Ceremony::Assertion => [
-                'id' => ['required', 'string'],
-                'type' => ['required', 'string', 'in:public-key'],
-                'rawId' => ['required', 'string'],
-                'response.authenticatorData' => ['required', 'string'],
-                'response.clientDataJSON' => ['required', 'string'],
-                'response.signature' => ['required', 'string'],
-                'response.userHandle' => ['sometimes', 'nullable'],
-                'remember' => ['nullable', 'string'],
-            ],
+            Ceremony::Assertion => (new AuthAssertionVerifyRequest())->rules(),
             Ceremony::Attestation => [
                 'id' => ['required', 'string'],
                 'name' => ['nullable', 'string'],

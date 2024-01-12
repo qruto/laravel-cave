@@ -24,13 +24,13 @@ use Qruto\Cave\Authenticators\Attestation;
 use Qruto\Cave\Authenticators\AttestationCeremony;
 use Qruto\Cave\Contracts\AuthResponse as LoginResponseContract;
 use Qruto\Cave\Contracts\EmailVerificationNotificationSentResponse as EmailVerificationNotificationSentResponseContract;
-use Qruto\Cave\Contracts\FailedPasswordConfirmationResponse as FailedPasswordConfirmationResponseContract;
+use Qruto\Cave\Contracts\FailedPasskeyConfirmationResponse as FailedPasswordConfirmationResponseContract;
 use Qruto\Cave\Contracts\FailedPasswordResetLinkRequestResponse as FailedPasswordResetLinkRequestResponseContract;
 use Qruto\Cave\Contracts\FailedPasswordResetResponse as FailedPasswordResetResponseContract;
 use Qruto\Cave\Contracts\FailedTwoFactorLoginResponse as FailedTwoFactorLoginResponseContract;
 use Qruto\Cave\Contracts\LockoutResponse as LockoutResponseContract;
 use Qruto\Cave\Contracts\LogoutResponse as LogoutResponseContract;
-use Qruto\Cave\Contracts\PasswordConfirmedResponse as PasswordConfirmedResponseContract;
+use Qruto\Cave\Contracts\PasskeyConfirmedResponse as PasswordConfirmedResponseContract;
 use Qruto\Cave\Contracts\PasswordResetResponse as PasswordResetResponseContract;
 use Qruto\Cave\Contracts\PasswordUpdateResponse as PasswordUpdateResponseContract;
 use Qruto\Cave\Contracts\ProfileInformationUpdatedResponse as ProfileInformationUpdatedResponseContract;
@@ -44,13 +44,13 @@ use Qruto\Cave\Contracts\TwoFactorLoginResponse as TwoFactorLoginResponseContrac
 use Qruto\Cave\Contracts\VerifyEmailResponse as VerifyEmailResponseContract;
 use Qruto\Cave\Http\Responses\AuthResponse;
 use Qruto\Cave\Http\Responses\EmailVerificationNotificationSentResponse;
-use Qruto\Cave\Http\Responses\FailedPasswordConfirmationResponse;
+use Qruto\Cave\Http\Responses\FailedPasskeyConfirmationResponse;
 use Qruto\Cave\Http\Responses\FailedPasswordResetLinkRequestResponse;
 use Qruto\Cave\Http\Responses\FailedPasswordResetResponse;
 use Qruto\Cave\Http\Responses\FailedTwoFactorLoginResponse;
 use Qruto\Cave\Http\Responses\LockoutResponse;
 use Qruto\Cave\Http\Responses\LogoutResponse;
-use Qruto\Cave\Http\Responses\PasswordConfirmedResponse;
+use Qruto\Cave\Http\Responses\PasskeyConfirmedResponse;
 use Qruto\Cave\Http\Responses\PasswordResetResponse;
 use Qruto\Cave\Http\Responses\PasswordUpdateResponse;
 use Qruto\Cave\Http\Responses\ProfileInformationUpdatedResponse;
@@ -198,7 +198,7 @@ class CaveServiceProvider extends PackageServiceProvider
     protected function registerResponseBindings()
     {
         $this->app->singleton(FailedPasswordConfirmationResponseContract::class,
-            FailedPasswordConfirmationResponse::class);
+            FailedPasskeyConfirmationResponse::class);
         $this->app->singleton(FailedPasswordResetLinkRequestResponseContract::class,
             FailedPasswordResetLinkRequestResponse::class);
         $this->app->singleton(FailedPasswordResetResponseContract::class,
@@ -212,7 +212,7 @@ class CaveServiceProvider extends PackageServiceProvider
         $this->app->singleton(LogoutResponseContract::class,
             LogoutResponse::class);
         $this->app->singleton(PasswordConfirmedResponseContract::class,
-            PasswordConfirmedResponse::class);
+            PasskeyConfirmedResponse::class);
         $this->app->singleton(PasswordResetResponseContract::class,
             PasswordResetResponse::class);
         $this->app->singleton(PasswordUpdateResponseContract::class,
@@ -260,7 +260,7 @@ class CaveServiceProvider extends PackageServiceProvider
 
         $this->app['auth']->provider('eloquent',
             fn ($app, array $config) => new EloquentUserProvider(
-                $app[Assertion::class],
+                $app[AssertionCeremony::class],
                 $app[Hasher::class],
                 $config['model'],
             ));
