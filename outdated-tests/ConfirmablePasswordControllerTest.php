@@ -4,7 +4,6 @@
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Qruto\Cave\Cave;
-use Qruto\Cave\Contracts\ConfirmPasswordViewResponse;
 
 class ConfirmablePasswordControllerTest extends TestCase
 {
@@ -23,20 +22,6 @@ class ConfirmablePasswordControllerTest extends TestCase
         });
 
         parent::setUp();
-    }
-
-    public function test_the_confirm_password_view_is_returned()
-    {
-        $this->mock(ConfirmPasswordViewResponse::class)
-            ->shouldReceive('toResponse')
-            ->andReturn(response('hello world'));
-
-        $response = $this->withoutExceptionHandling()->actingAs($this->user)->get(
-            '/user/confirm-password'
-        );
-
-        $response->assertStatus(200);
-        $response->assertSeeText('hello world');
     }
 
     public function test_password_can_be_confirmed()

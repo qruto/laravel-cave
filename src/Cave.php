@@ -2,10 +2,11 @@
 
 namespace Qruto\Cave;
 
+use Illuminate\Http\Request;
+use Qruto\Cave\Authenticators\AssertionCeremony;
 use Qruto\Cave\Contracts\AuthViewResponse;
-use Qruto\Cave\Contracts\ConfirmPasswordViewResponse;
+use Qruto\Cave\Contracts\ConfirmPasskeyViewResponse;
 use Qruto\Cave\Contracts\CreatesNewUsers;
-use Qruto\Cave\Contracts\RegisterViewResponse;
 use Qruto\Cave\Contracts\RequestPasswordResetLinkViewResponse;
 use Qruto\Cave\Contracts\ResetsUserPasswords;
 use Qruto\Cave\Contracts\UpdatesUserPasswords;
@@ -145,10 +146,22 @@ class Cave
      */
     public static function confirmPasswordView($view)
     {
-        app()->singleton(ConfirmPasswordViewResponse::class,
-            function () use ($view) {
-                return new SimpleViewResponse($view);
-            });
+        app()->singleton(
+            ConfirmPasskeyViewResponse::class,
+            function ($app) use ($view) {
+                $request = $app[Request::class];
+
+                $assertion = $app[AssertionCeremony::class];
+                $options = $assertion->newOptions($request->user());
+
+                $request->session()->put($assertion::OPTIONS_SESSION_KEY,
+                    $options);
+
+                return new SimpleViewResponse($view, [
+                    'options' => $options,
+                ]);
+            }
+        );
     }
 
     /**

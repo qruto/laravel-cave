@@ -6,45 +6,38 @@ use Illuminate\Contracts\Auth\StatefulGuard;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Qruto\Cave\Actions\ConfirmPassword;
-use Qruto\Cave\Contracts\ConfirmPasswordViewResponse;
+use Qruto\Cave\Contracts\ConfirmPasskeyViewResponse;
 use Qruto\Cave\Contracts\FailedPasswordConfirmationResponse;
 use Qruto\Cave\Contracts\PasswordConfirmedResponse;
 
 class ConfirmablePasswordController extends Controller
 {
     /**
-     * The guard implementation.
-     *
-     * @var \Illuminate\Contracts\Auth\StatefulGuard
-     */
-    protected $guard;
-
-    /**
      * Create a new controller instance.
      *
-     * @param  \Illuminate\Contracts\Auth\StatefulGuard  $guard
      * @return void
      */
-    public function __construct(StatefulGuard $guard)
-    {
-        $this->guard = $guard;
+    public function __construct(
+        /**
+         * The guard implementation.
+         */
+        protected StatefulGuard $guard,
+    ) {
     }
 
     /**
      * Show the confirm password view.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Qruto\Cave\Contracts\ConfirmPasswordViewResponse
+     * @return \Qruto\Cave\Contracts\ConfirmPasskeyViewResponse
      */
-    public function show(Request $request)
+    public function show(Request $request, ConfirmPasskeyViewResponse $response)
     {
-        return app(ConfirmPasswordViewResponse::class);
+        return $response;
     }
 
     /**
      * Confirm the user's password.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Contracts\Support\Responsable
      */
     public function store(Request $request)
@@ -54,11 +47,11 @@ class ConfirmablePasswordController extends Controller
         );
 
         if ($confirmed) {
-            $request->session()->put('auth.password_confirmed_at', time());
+            $request->session()->put('auth.passkey_confirmed_at', time());
         }
 
         return $confirmed
-                    ? app(PasswordConfirmedResponse::class)
-                    : app(FailedPasswordConfirmationResponse::class);
+            ? app(PasswordConfirmedResponse::class)
+            : app(FailedPasswordConfirmationResponse::class);
     }
 }

@@ -9,6 +9,7 @@ use Webauthn\PublicKeyCredentialSource;
 // TODO: leave just `Attestation` as the name of the interface ?
 interface AttestationCeremony
 {
+    // TODO: change public_key prefix to auth.
     public const OPTIONS_SESSION_KEY = 'public_key_credential_creation_options';
 
     public function newOptions(WebAuthenticatable $user = null

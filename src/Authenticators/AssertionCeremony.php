@@ -8,6 +8,7 @@ use Webauthn\PublicKeyCredentialSource;
 
 interface AssertionCeremony
 {
+    // TODO: remove SESSION from name
     public const OPTIONS_SESSION_KEY = 'public_key_credential_request_options';
 
     public function newOptions(WebAuthenticatable $user = null

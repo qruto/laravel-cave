@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Qruto\Cave\Cave;
 use Qruto\Cave\Http\Controllers\AuthenticatedSessionController;
 use Qruto\Cave\Http\Controllers\AuthenticatedSessionOptionsController;
+use Qruto\Cave\Http\Controllers\ConfirmablePasswordController;
 use Qruto\Cave\RoutePath;
 
 if (Cave::$registersRoutes) {
@@ -29,7 +30,7 @@ if (Cave::$registersRoutes) {
                     '6,1');
 
                 Route::post(RoutePath::for('auth', '/auth').'/options', [
-                    AuthenticatedSessionOptionsController::class, 'store'
+                    AuthenticatedSessionOptionsController::class, 'store',
                 ])->middleware(['guest:'.config('cave.guard')])
                     ->name('auth.options');
 
@@ -41,42 +42,38 @@ if (Cave::$registersRoutes) {
                     $limiter ? 'throttle:'.$limiter : null,
                 ]));
 
-                Route::post(RoutePath::for('logout', '/logout'), [AuthenticatedSessionController::class, 'destroy'])
+                Route::post(RoutePath::for('logout', '/logout'),
+                    [AuthenticatedSessionController::class, 'destroy'])
                     ->name('logout');
-                //
-                //    // Password Reset...
-                //    if (Features::enabled(Features::resetPasswords())) {
-                //        if ($enableViews) {
-                //            Route::get(RoutePath::for('password.request', '/forgot-password'), [PasswordResetLinkController::class, 'create'])
-                //                ->middleware(['guest:'.config('cave.guard')])
-                //                ->name('password.request');
-                //
-                //            Route::get(RoutePath::for('password.reset', '/reset-password/{token}'), [NewPasswordController::class, 'create'])
-                //                ->middleware(['guest:'.config('cave.guard')])
-                //                ->name('password.reset');
-                //        }
-                //
-                //        Route::post(RoutePath::for('password.email', '/forgot-password'), [PasswordResetLinkController::class, 'store'])
-                //            ->middleware(['guest:'.config('cave.guard')])
-                //            ->name('password.email');
-                //
-                //        Route::post(RoutePath::for('password.update', '/reset-password'), [NewPasswordController::class, 'store'])
-                //            ->middleware(['guest:'.config('cave.guard')])
-                //            ->name('password.update');
-                //    }
-                //
-                //    // Registration...
-                //    if (Features::enabled(Features::registration())) {
-                //        if ($enableViews) {
-                //            Route::get(RoutePath::for('register', '/register'), [RegisteredUserController::class, 'create'])
-                //                ->middleware(['guest:'.config('cave.guard')])
-                //                ->name('register');
-                //        }
-                //
-                //        Route::post(RoutePath::for('register', '/register'), [RegisteredUserController::class, 'store'])
-                //            ->middleware(['guest:'.config('cave.guard')]);
-                //    }
-                //
+
+                // Password Confirmation...
+                if ($enableViews) {
+                    Route::get(RoutePath::for('password.confirm',
+                        '/user/confirm-passkey'),
+                        [ConfirmablePasswordController::class, 'show'])
+                        ->middleware([
+                            config('cave.auth_middleware',
+                                'auth').':'.config('cave.guard'),
+                        ]);
+                }
+
+                Route::get(RoutePath::for('password.confirmation',
+                    '/user/confirmed-password-status'),
+                    [ConfirmedPasswordStatusController::class, 'show'])
+                    ->middleware([
+                        config('cave.auth_middleware',
+                            'auth').':'.config('cave.guard'),
+                    ])
+                    ->name('password.confirmation');
+
+                Route::post(RoutePath::for('password.confirm',
+                    '/user/confirm-password'),
+                    [ConfirmablePasswordController::class, 'store'])
+                    ->middleware([
+                        config('cave.auth_middleware',
+                            'auth').':'.config('cave.guard'),
+                    ])
+                    ->name('password.confirm');
                 //    // Email Verification...
                 //    if (Features::enabled(Features::emailVerification())) {
                 //        if ($enableViews) {
@@ -108,19 +105,7 @@ if (Cave::$registersRoutes) {
                 //            ->name('user-password.update');
                 //    }
                 //
-                //    // Password Confirmation...
-                //    if ($enableViews) {
-                //        Route::get(RoutePath::for('password.confirm', '/user/confirm-password'), [ConfirmablePasswordController::class, 'show'])
-                //            ->middleware([config('cave.auth_middleware', 'auth').':'.config('cave.guard')]);
-                //    }
                 //
-                //    Route::get(RoutePath::for('password.confirmation', '/user/confirmed-password-status'), [ConfirmedPasswordStatusController::class, 'show'])
-                //        ->middleware([config('cave.auth_middleware', 'auth').':'.config('cave.guard')])
-                //        ->name('password.confirmation');
-                //
-                //    Route::post(RoutePath::for('password.confirm', '/user/confirm-password'), [ConfirmablePasswordController::class, 'store'])
-                //        ->middleware([config('cave.auth_middleware', 'auth').':'.config('cave.guard')])
-                //        ->name('password.confirm');
             });
     });
 }

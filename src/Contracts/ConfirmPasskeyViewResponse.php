@@ -4,7 +4,7 @@ namespace Qruto\Cave\Contracts;
 
 use Illuminate\Contracts\Support\Responsable;
 
-interface ConfirmPasswordViewResponse extends Responsable
+interface ConfirmPasskeyViewResponse extends Responsable
 {
     //
 }
